@@ -1,0 +1,9 @@
+[package]
+name = "ploogly"
+version = "0.4.6"
+edition = "2024"
+
+[dependencies]
+markdown = "1.0.0"
+mlua = {version = "0.10.5", features = ["lua54", "vendored"]}
+tiny_http = "0.12.0"
