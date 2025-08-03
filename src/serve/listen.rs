@@ -8,6 +8,7 @@
 
 use crate::build::*;
 use crate::serve::lua_gen::*;
+use crate::serve::data::*;
 
 use tiny_http::{Server, Response, Method};
 use std::sync::{Arc, Mutex};
@@ -17,90 +18,6 @@ use std::string::*;
 use std::thread::spawn;
 use std::io::stdin;
 use std::io::ErrorKind;
-
-struct ReqData {
-    path: String,
-    query: Option<String>
-}
-
-struct Entry {
-    key: String,
-    value: String
-}
-
-struct ReqInfo {
-    data: ReqData,
-    entries: Option<Vec<Entry>>
-}
-
-fn url_query(url: &str) -> ReqData {    
-    let vurl_raw: String = url.to_string();
-    let vurl: Vec<u8> = vurl_raw.as_bytes().to_vec(); 
-    
-    let mut path: String = String::new();
-    let mut query: Option<String> = None;
-
-    for i in (0..=vurl.len() - 1).rev() {
-        match vurl[i] {
-            b'/' => {
-                path = vurl_raw.clone();
-                query = None;
-
-                break;
-            },
-
-            b'?' => {
-                path = String::from_utf8(vurl[0..i].to_vec()).unwrap();
-                query = Some(String::from_utf8(vurl[i..vurl.len()].to_vec()).unwrap());
-            
-                break;
-            },
-
-            _ => {}
-        }
-    }
-
-    return ReqData { path: path, query: query };
-}
-
-fn url_query_to_entries(query: &str) -> Vec<Entry> {
-    let mut result: Vec<Entry> = Vec::new();
-    let mut iskey: bool = true;
-
-    let mut key: String = String::new();
-
-    for entry in query.to_string().split("=") {
-        if iskey {
-            key = entry.to_string();
-        } else {
-            result.push(Entry { 
-                key: key.clone(), value: entry.to_string() 
-            });
-        }
-        iskey = !iskey;
-    }
-
-    return result;
-}
-
-fn getreqinfo(path: &str) -> ReqInfo {
-    let data: ReqData = url_query(path);
-    
-    let info: ReqInfo;
-    if data.query != None {
-        info = ReqInfo {
-            entries: Some(url_query_to_entries(&data.query.clone().unwrap()[1..])),
-            data: data,
-        };
-    } else {
-        info = ReqInfo {
-            entries: None,
-            data: data
-        };
-    }
-
-    return info;
-}
 
 fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io::Error> {
     let path: PathBuf = canonicalize(PathBuf::from_str(dir).unwrap())?;
@@ -126,7 +43,7 @@ fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io
                 
                 
                 let mut info: ReqInfo = getreqinfo(&path_to);
-                path_to = info.data.path;
+                path_to = info.data.path.clone();
 
                 if *request.method() == Method::Post {
                     let mut body: String = String::new();
@@ -135,7 +52,10 @@ fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io
 
                     let mut entries: Vec<Entry> = url_query_to_entries(&body);
                     if !info.entries.is_none() {
-                        info.entries.unwrap().append(&mut entries);
+                        let mut ne: Vec<Entry> = info.entries.clone().unwrap();
+                        ne.append(&mut entries);
+
+                        info.entries = Some(ne);
                     } else {
                         info.entries = Some(entries);
                     }
@@ -145,7 +65,7 @@ fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io
                     // lua functionality here
                     // reqinfo, etc.
                     if path_to.ends_with(".lua") {
-                        let response = Response::from_data(pluacgi(&path_to).unwrap());
+                        let response = Response::from_data(pluacgi(&path_to, &info).unwrap());
                         request.respond(response)?;
                     } else {
                         let response = Response::from_file(File::open(path_to)?);

@@ -6,9 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-use crate::interpreter_facilities::*;
+use crate::serve::data::*;
 
-use std::collections::HashMap;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::fs::{File, exists, remove_file, OpenOptions};
 use std::io::{ErrorKind, Read, Write};
@@ -38,8 +37,35 @@ fn pprint(toap: &str,
     Ok(())
 }
 
+fn make_kvdata(ctx:   &Lua,
+                key:    &str,
+                value:  &str
+) -> Result<Table, LuaError> {
+    let kvtable: Table = ctx.create_table()?;
+
+    kvtable.set(1, key)?;
+    kvtable.set(2, value)?; 
+
+    return Ok(kvtable);
+}
+
+fn put_req_info(ctx: &Lua,
+                data: &ReqInfo
+) -> Result<Table, LuaError> {
+    let datatable: Table = ctx.create_table()?;
+
+    let mut i: usize = 1;
+    for entry in data.entries.clone().unwrap() {
+        datatable.set(i, make_kvdata(ctx, &entry.key, &entry.value)?)?;
+        i += 1;
+    }
+
+    return Ok(datatable);
+}
+
 fn ploogly_master(  ctx: &Lua,
-                    outname: &str
+                    outname: &str,
+                    data: &ReqInfo
         ) -> Result<Table, LuaError> {
     let ploogly: Table = ctx.create_table()?;
     
@@ -53,12 +79,19 @@ fn ploogly_master(  ctx: &Lua,
         }.into_lua(ctx)
     })?;
 
+    // vars
+    if !data.entries.is_none() {
+        let vars: Table = put_req_info(ctx, data)?;
+        ploogly.set("vars", vars)?;
+    }
+
     ploogly.set("pprint", pprintl)?;
 
     Ok(ploogly)
 }
 
-pub fn pluacgi(path: &str) -> Result<Vec<u8>, std::io::Error> {
+
+pub fn pluacgi(path: &str, data: &ReqInfo) -> Result<Vec<u8>, std::io::Error> {
     let mut result: Vec<u8> = Vec::new();
 
     if exists(&path)? {
@@ -72,7 +105,7 @@ pub fn pluacgi(path: &str) -> Result<Vec<u8>, std::io::Error> {
         
         File::create(&outname)?;
 
-            let functions: Table = ploogly_master(&ctx, &outname).unwrap();
+            let functions: Table = ploogly_master(&ctx, &outname, data).unwrap();
 
             ctx.globals().set("ploogly", functions);
 
