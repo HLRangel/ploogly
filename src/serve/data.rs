@@ -6,6 +6,37 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+use std::fmt;
+use tiny_http::Method;
+
+#[derive(Debug, Clone)]
+pub enum ReqMethod {
+    Post,
+    Get,
+    Unsupported
+}
+
+pub struct TinyHTTPMethod(pub tiny_http::Method);
+impl TinyHTTPMethod {
+    pub fn to_reqmethod(&self) -> ReqMethod {
+        match self.0 {
+            Method::Get => ReqMethod::Get,
+            Method::Post => ReqMethod::Post,
+            _ => ReqMethod::Unsupported
+        }
+    }
+}
+
+impl fmt::Display for ReqMethod {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ReqMethod::Get => write!(f, "GET"),
+            ReqMethod::Post => write!(f, "POST"),
+            ReqMethod::Unsupported => write!(f, "Unsupported")
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct ReqData {
     pub path: String,
@@ -21,8 +52,10 @@ pub struct Entry {
 #[derive(Debug, Clone)]
 pub struct ReqInfo {
     pub data: ReqData,
-    pub entries: Option<Vec<Entry>>
+    pub entries: Option<Vec<Entry>>,
+    pub method: ReqMethod
 }
+
 
 pub fn url_query(url: &str) -> ReqData {    
     let vurl_raw: String = url.to_string();
@@ -67,7 +100,7 @@ pub fn url_query_to_entries(query: &str) -> Vec<Entry> {
     return result;
 }
 
-pub fn getreqinfo(path: &str) -> ReqInfo {
+pub fn getreqinfo(path: &str, method: ReqMethod) -> ReqInfo {
     let data: ReqData = url_query(path);
     
     let info: ReqInfo;
@@ -75,11 +108,13 @@ pub fn getreqinfo(path: &str) -> ReqInfo {
         info = ReqInfo {
             entries: Some(url_query_to_entries(&data.query.clone().unwrap()[1..])),
             data: data,
+            method: method
         };
     } else {
         info = ReqInfo {
             entries: None,
-            data: data
+            data: data,
+            method: method
         };
     }
 

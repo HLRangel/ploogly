@@ -86,6 +86,7 @@ fn ploogly_master(  ctx: &Lua,
     }
 
     ploogly.set("pprint", pprintl)?;
+    ploogly.set("method", data.method.to_string())?;
 
     Ok(ploogly)
 }

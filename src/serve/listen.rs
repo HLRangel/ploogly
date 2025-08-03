@@ -42,7 +42,10 @@ fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io
                                     ).to_str().unwrap()).unwrap();
                 
                 
-                let mut info: ReqInfo = getreqinfo(&path_to);
+                let mut info: ReqInfo = getreqinfo(&path_to, 
+                                            TinyHTTPMethod(request.method().clone())
+                                                        .to_reqmethod()
+                                                    );
                 path_to = info.data.path.clone();
 
                 if *request.method() == Method::Post {
