@@ -99,8 +99,9 @@ fn main() -> Result<(), u8> {
                     ---\n\n\
                     Ploogly uses the following third-party packages:\n\
                     markdown-rs Copyright (c) 2022 Titus Wormer <tituswormer@gmail.com>\n\
-                    tiny_http Copyright (c) 2014-2019 The tiny-http contributors\n\n\
-                    markdown-rs and tiny_http are under the \"MIT License\":\n\
+                    tiny_http Copyright (c) 2014-2019 The tiny-http contributors\n\
+                    mlua Copyright (c) 2019-2021 A. Orlenko, Copyright (c) 2017 rlua\n\n\
+                    markdown-rs, mlua, and tiny_http are under the \"MIT License\":\n\
                     \n\
                     Permission is hereby granted, free of charge, to any person obtaining\n\
                     a copy of this software and associated documentation files (the\n\
