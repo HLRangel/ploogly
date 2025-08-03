@@ -56,19 +56,12 @@ pub fn url_query(url: &str) -> ReqData {
 
 pub fn url_query_to_entries(query: &str) -> Vec<Entry> {
     let mut result: Vec<Entry> = Vec::new();
-    let mut iskey: bool = true;
 
-    let mut key: String = String::new();
-
-    for entry in query.to_string().split("=") {
-        if iskey {
-            key = entry.to_string();
-        } else {
-            result.push(Entry { 
-                key: key.clone(), value: entry.to_string() 
-            });
-        }
-        iskey = !iskey;
+    for entry in query.split("&") {
+        let kv: Vec<&str> = entry.split("=").collect();
+        result.push(Entry { 
+            key: kv[0].to_string(), value: kv[1].to_string() 
+        });
     }
 
     return result;
