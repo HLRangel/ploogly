@@ -40,25 +40,16 @@ fn main() -> Result<(), u8> {
     if args.len() >= 2 {
         match args[1].as_str() {
             "new" => {
-                match new() {
-                    Err(err) => {
-                        eprintln!("Error when generating new project: {err}");
-                        return Err(1);
-                    }
-
-                    _ => (),
-                };
-            },
-
-            "new_bare" => {
                 if args.len() >= 3 {
-                    match new_bare(args[2].clone()) {
+                    match new(args[2].clone()) {
                         Err(err) => {
                             eprintln!("Error when generating new project (bare): {err}");
                             return Err(1);
                         }
 
-                        _ => ()
+                        _ => {
+                            println!("Project created!");
+                        }
                     }
                 } else {
                     println!("Directory name not specified!");
