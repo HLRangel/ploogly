@@ -165,6 +165,24 @@ pub fn produce(origin: &[u8],
                 }
             },
 
+            b'<' => {
+                if is_html_comment_start(origin, current) {
+                    current += 4;
+
+                    while !is_html_comment_end(origin, current) && 
+                        !is_eof(origin, current) {
+                        current += 1;
+                    }
+
+                    if !is_eof(origin, current) {
+                        current += 3;
+                    }
+                } else {
+                    result.push(origin[current]);
+                    current += 1;
+                }
+            }
+
             _ => {
                 result.push(origin[current]);
                 current += 1;

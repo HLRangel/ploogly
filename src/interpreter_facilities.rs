@@ -270,6 +270,17 @@ pub fn get_data_to_end(origin: &[u8],
     return origin[*last..*current].to_vec();
 }
 
+pub fn is_html_comment_start(origin: &[u8], current: usize) -> bool {
+    return is_char_n(origin, current, b'<') &&
+            is_char_n(origin, current + 1, b'!') &&
+            is_n_chars(origin, current + 2, b'-', 2);
+}
+
+pub fn is_html_comment_end(origin: &[u8], current: usize) -> bool {
+    return is_n_chars(origin, current, b'-', 2) &&
+            is_char_n(origin, current + 2, b'>');
+}
+
 pub fn get_worl_produce(origin: &[u8], 
             current: &mut usize,
             last: &mut usize, 
