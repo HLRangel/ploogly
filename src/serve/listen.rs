@@ -40,6 +40,10 @@ fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io
                 let mut path_to: String = String::from_str(path.join(
                                     req.strip_prefix("/").unwrap()
                                     ).to_str().unwrap()).unwrap();
+
+                if path_to.ends_with("/") {
+                    path_to.push_str("index.html");
+                }
                 
                 
                 let mut info: ReqInfo = getreqinfo(&path_to, 
