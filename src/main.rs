@@ -22,6 +22,7 @@ mod file;
 mod build;
 mod new;
 mod serve;
+mod bases;
 
 use crate::serve::listen::*;
 use crate::build::*;
