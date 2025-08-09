@@ -9,145 +9,150 @@
 use crate::docdata::*;
 use crate::interpreter_facilities::*;
 
+use crate::commands::if_n_def::*;
 use crate::commands::include::*;
 use crate::commands::list_doc::*;
 use crate::commands::produce_from::*;
-use crate::commands::var::*;
-use crate::commands::set::*;
-use crate::commands::unset::*;
-use crate::commands::if_n_def::*;
-use crate::commands::truncate::*;
 use crate::commands::redir::*;
+use crate::commands::set::*;
 use crate::commands::template::*;
-use crate::commands::call::*;
+use crate::commands::truncate::*;
+use crate::commands::unset::*;
+use crate::commands::var::*;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
 
-pub fn produce(origin: &[u8],
-            vars: &mut HashMap<String, Vec<u8>>,
-            cache: &mut HashMap<String, DocData>,
-            anon_stack: &mut Vec<Vec<u8>>
-        ) -> Result<Vec<u8>, std::io::Error> {
+pub fn produce(
+    origin: &[u8],
+    vars: &mut HashMap<String, Vec<u8>>,
+    cache: &mut HashMap<String, DocData>,
+    anon_stack: &mut Vec<Vec<u8>>,
+) -> Result<Vec<u8>, std::io::Error> {
     let mut result: Vec<u8> = Vec::new();
     let mut current: usize = 0;
     let mut last: usize = 0;
 
-    // todo: "set" command
     while current < origin.len() {
         match origin[current] {
             b'{' => {
                 if !is_eof(origin, current + 1) && origin[current + 1] == b'{' {
                     current += 2;
-                    
+
                     let command: String = get_word(origin, &mut last, &mut current)?;
 
                     if !is_eof(origin, current) {
                         match command.as_str() {
                             "produce_from" => {
-                                let mut toput: Vec<u8> = produce_from(origin,
-                                                                        &mut last, 
-                                                                        &mut current, 
-                                                                        vars, 
-                                                                        cache,
-                                                                        anon_stack)?;
+                                let mut toput: Vec<u8> = produce_from(
+                                    origin,
+                                    &mut last,
+                                    &mut current,
+                                    vars,
+                                    cache,
+                                    anon_stack,
+                                )?;
                                 result.append(&mut toput);
                             }
 
                             "list_doc" => {
-                                let mut docap: Vec<u8> = list_doc(origin, 
-                                                                    &mut last, 
-                                                                    &mut current, 
-                                                                    cache, 
-                                                                    vars,
-                                                                    anon_stack)?;
+                                let mut docap: Vec<u8> = list_doc(
+                                    origin,
+                                    &mut last,
+                                    &mut current,
+                                    cache,
+                                    vars,
+                                    anon_stack,
+                                )?;
                                 result.append(&mut docap);
                             }
-                            
+
                             "include" => {
-                                include(&mut result,
-                                        origin,
-                                        &mut last,
-                                        &mut current,
-                                        vars,
-                                        cache,
-                                        anon_stack)?;
-                            },
+                                include(
+                                    &mut result,
+                                    origin,
+                                    &mut last,
+                                    &mut current,
+                                    vars,
+                                    cache,
+                                    anon_stack,
+                                )?;
+                            }
 
                             "var" => {
-                                var(&mut result,
-                                    origin, 
-                                    &mut last, 
-                                    &mut current, 
+                                var(
+                                    &mut result,
+                                    origin,
+                                    &mut last,
+                                    &mut current,
                                     vars,
-                                    anon_stack)?;
+                                    anon_stack,
+                                )?;
                             }
 
                             "set" => {
                                 set(origin, &mut current, &mut last, vars, cache, anon_stack)?;
-                            },
+                            }
 
                             "unset" => {
                                 unset(origin, &mut last, &mut current, vars)?;
-                            },
+                            }
 
                             "ifdef" => {
-                                let mut tores: Vec<u8> = ifdef(origin, 
-                                                                &mut current, 
-                                                                &mut last,
-                                                                vars, 
-                                                                cache, 
-                                                                anon_stack)?;
+                                let mut tores: Vec<u8> = ifdef(
+                                    origin,
+                                    &mut current,
+                                    &mut last,
+                                    vars,
+                                    cache,
+                                    anon_stack,
+                                )?;
                                 result.append(&mut tores);
-                            },
+                            }
 
                             "ifndef" => {
-                                let mut tores: Vec<u8> = ifndef(origin, 
-                                                                &mut current, 
-                                                                &mut last, 
-                                                                vars, 
-                                                                cache, 
-                                                                anon_stack)?;
+                                let mut tores: Vec<u8> = ifndef(
+                                    origin,
+                                    &mut current,
+                                    &mut last,
+                                    vars,
+                                    cache,
+                                    anon_stack,
+                                )?;
                                 result.append(&mut tores);
-                            },
+                            }
 
                             "template" => {
-                                let mut tores: Vec<u8> = template(origin, 
-                                                                &mut last, 
-                                                                &mut current, 
-                                                                vars, 
-                                                                cache, 
-                                                                anon_stack)?;
+                                let mut tores: Vec<u8> = template(
+                                    origin,
+                                    &mut last,
+                                    &mut current,
+                                    vars,
+                                    cache,
+                                    anon_stack,
+                                )?;
                                 result.append(&mut tores);
-                            },
+                            }
 
                             "truncate" => {
-                                let mut tores: Vec<u8> = truncate(origin, 
-                                                                &mut last, 
-                                                                &mut current, 
-                                                                vars, 
-                                                                cache, 
-                                                                anon_stack)?;
+                                let mut tores: Vec<u8> = truncate(
+                                    origin,
+                                    &mut last,
+                                    &mut current,
+                                    vars,
+                                    cache,
+                                    anon_stack,
+                                )?;
                                 result.append(&mut tores);
-                            },
+                            }
 
                             "redir" => {
                                 redir(origin, &mut last, &mut current, vars)?;
-                            },
-
-                            "call" => {
-                                let mut tores: Vec<u8> = call(origin, 
-                                                            &mut last, 
-                                                            &mut current, 
-                                                            vars, 
-                                                            anon_stack)?;
-
-                                result.append(&mut tores);
                             }
 
                             _ => {
                                 return Err(ErrorKind::InvalidInput.into());
-                            },
+                            }
                         }
                     } else {
                         panic!("Unexpected end of command.");
@@ -163,14 +168,13 @@ pub fn produce(origin: &[u8],
                     result.push(origin[current]);
                     current += 1;
                 }
-            },
+            }
 
             b'<' => {
                 if is_html_comment_start(origin, current) {
                     current += 4;
 
-                    while !is_html_comment_end(origin, current) && 
-                        !is_eof(origin, current) {
+                    while !is_html_comment_end(origin, current) && !is_eof(origin, current) {
                         current += 1;
                     }
 

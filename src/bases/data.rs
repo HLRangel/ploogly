@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+/*use std::collections::HashMap;
 
 struct ProdInfo {
     hash:   u64,
@@ -27,4 +27,4 @@ fn base_to_file(base: &Base, path: &str) {
 
 fn base_from_file(path: &str) -> Base {
 
-}
+}*/

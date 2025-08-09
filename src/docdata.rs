@@ -12,5 +12,5 @@ use std::collections::HashMap;
 pub struct DocData {
     pub ctx: HashMap<String, Vec<u8>>,
     pub path: String,
-    pub data: Vec<u8>
+    pub data: Vec<u8>,
 }

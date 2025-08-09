@@ -13,7 +13,7 @@ use tiny_http::Method;
 pub enum ReqMethod {
     Post,
     Get,
-    Unsupported
+    Unsupported,
 }
 
 pub struct TinyHTTPMethod(pub tiny_http::Method);
@@ -22,7 +22,7 @@ impl TinyHTTPMethod {
         match self.0 {
             Method::Get => ReqMethod::Get,
             Method::Post => ReqMethod::Post,
-            _ => ReqMethod::Unsupported
+            _ => ReqMethod::Unsupported,
         }
     }
 }
@@ -32,7 +32,7 @@ impl fmt::Display for ReqMethod {
         match self {
             ReqMethod::Get => write!(f, "GET"),
             ReqMethod::Post => write!(f, "POST"),
-            ReqMethod::Unsupported => write!(f, "Unsupported")
+            ReqMethod::Unsupported => write!(f, "Unsupported"),
         }
     }
 }
@@ -40,27 +40,26 @@ impl fmt::Display for ReqMethod {
 #[derive(Debug, Clone)]
 pub struct ReqData {
     pub path: String,
-    pub query: Option<String>
+    pub query: Option<String>,
 }
 
 #[derive(Debug, Clone)]
 pub struct Entry {
     pub key: String,
-    pub value: String
+    pub value: String,
 }
 
 #[derive(Debug, Clone)]
 pub struct ReqInfo {
     pub data: ReqData,
     pub entries: Option<Vec<Entry>>,
-    pub method: ReqMethod
+    pub method: ReqMethod,
 }
 
-
-pub fn url_query(url: &str) -> ReqData {    
+pub fn url_query(url: &str) -> ReqData {
     let vurl_raw: String = url.to_string();
-    let vurl: Vec<u8> = vurl_raw.as_bytes().to_vec(); 
-    
+    let vurl: Vec<u8> = vurl_raw.as_bytes().to_vec();
+
     let mut path: String = String::new();
     let mut query: Option<String> = None;
 
@@ -71,20 +70,20 @@ pub fn url_query(url: &str) -> ReqData {
                 query = None;
 
                 break;
-            },
+            }
 
             b'?' => {
                 path = String::from_utf8(vurl[0..i].to_vec()).unwrap();
                 query = Some(String::from_utf8(vurl[i..vurl.len()].to_vec()).unwrap());
-            
+
                 break;
-            },
+            }
 
             _ => {}
         }
     }
 
-    return ReqData { path: path, query: query };
+    return ReqData { path, query };
 }
 
 pub fn url_query_to_entries(query: &str) -> Vec<Entry> {
@@ -92,8 +91,9 @@ pub fn url_query_to_entries(query: &str) -> Vec<Entry> {
 
     for entry in query.split("&") {
         let kv: Vec<&str> = entry.split("=").collect();
-        result.push(Entry { 
-            key: kv[0].to_string(), value: kv[1].to_string() 
+        result.push(Entry {
+            key: kv[0].to_string(),
+            value: kv[1].to_string(),
         });
     }
 
@@ -102,19 +102,19 @@ pub fn url_query_to_entries(query: &str) -> Vec<Entry> {
 
 pub fn getreqinfo(path: &str, method: ReqMethod) -> ReqInfo {
     let data: ReqData = url_query(path);
-    
+
     let info: ReqInfo;
     if data.query != None {
         info = ReqInfo {
             entries: Some(url_query_to_entries(&data.query.clone().unwrap()[1..])),
-            data: data,
-            method: method
+            data,
+            method,
         };
     } else {
         info = ReqInfo {
             entries: None,
-            data: data,
-            method: method
+            data,
+            method,
         };
     }
 

@@ -8,17 +8,18 @@
 
 use std::collections::HashMap;
 
+use crate::docdata::*;
 use crate::interpreter_facilities::{get_inner, get_word_or_literal};
 use crate::produce::*;
-use crate::docdata::*;
 
-pub fn ifdef(origin: &[u8],
-            current: &mut usize,
-            last: &mut usize, 
-            vars: &mut HashMap<String, Vec<u8>>,
-            cache: &mut HashMap<String, DocData>,
-            anon_stack: &mut Vec<Vec<u8>>
-        ) -> Result<Vec<u8>, std::io::Error> {
+pub fn ifdef(
+    origin: &[u8],
+    current: &mut usize,
+    last: &mut usize,
+    vars: &mut HashMap<String, Vec<u8>>,
+    cache: &mut HashMap<String, DocData>,
+    anon_stack: &mut Vec<Vec<u8>>,
+) -> Result<Vec<u8>, std::io::Error> {
     let arg: String = get_word_or_literal(origin, last, current)?;
     let inner: Vec<u8> = get_inner(origin, last, current)?;
 
@@ -30,13 +31,14 @@ pub fn ifdef(origin: &[u8],
     return Ok(Vec::new());
 }
 
-pub fn ifndef(origin: &[u8],
-            current: &mut usize,
-            last: &mut usize, 
-            vars: &mut HashMap<String, Vec<u8>>,
-            cache: &mut HashMap<String, DocData>,
-            anon_stack: &mut Vec<Vec<u8>>
-        ) -> Result<Vec<u8>, std::io::Error> {
+pub fn ifndef(
+    origin: &[u8],
+    current: &mut usize,
+    last: &mut usize,
+    vars: &mut HashMap<String, Vec<u8>>,
+    cache: &mut HashMap<String, DocData>,
+    anon_stack: &mut Vec<Vec<u8>>,
+) -> Result<Vec<u8>, std::io::Error> {
     let arg: String = get_word_or_literal(origin, last, current)?;
     let inner: Vec<u8> = get_inner(origin, last, current)?;
 

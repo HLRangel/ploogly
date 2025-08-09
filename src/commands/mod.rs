@@ -6,14 +6,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-pub mod list_doc;
-pub mod include;
-pub mod produce_from;
-pub mod var;
-pub mod set;
-pub mod unset;
 pub mod if_n_def;
+pub mod include;
+pub mod list_doc;
+pub mod produce_from;
+pub mod redir;
+pub mod set;
 pub mod template;
 pub mod truncate;
-pub mod redir;
-pub mod call;
+pub mod unset;
+pub mod var;

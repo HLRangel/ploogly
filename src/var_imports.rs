@@ -25,18 +25,17 @@ pub fn read_text_arg(origin: &[u8], current: &mut usize) -> Vec<u8> {
                     vecmap.push(origin[*current]);
                     *current += 1;
                 }
-            },
+            }
 
             b'>' => {
-                if is_three_rarrow(origin, *current) && 
-                    is_char_n(origin, *current + 3, b'\n') {
+                if is_three_rarrow(origin, *current) && is_char_n(origin, *current + 3, b'\n') {
                     *current += 4;
                     vecmap.push(b'\n');
                 } else {
                     vecmap.push(origin[*current]);
                     *current += 1;
                 }
-            },
+            }
 
             _ => {
                 vecmap.push(origin[*current]);
@@ -45,7 +44,7 @@ pub fn read_text_arg(origin: &[u8], current: &mut usize) -> Vec<u8> {
         }
     }
 
-    return vecmap;
+    vecmap
 }
 
 // Import variables with primitive yaml-like format, <name>: <var> <nl / |>
@@ -71,15 +70,15 @@ pub fn import_variables(origin: &[u8]) -> Result<HashMap<String, Vec<u8>>, std::
         }
     }
 
-    return Ok(vars);
+    Ok(vars)
 }
 
 pub fn get_vars_from_file(path: &str) -> Result<HashMap<String, Vec<u8>>, std::io::Error> {
     let mut fhandle = File::open(path)?;
     let mut vecy: Vec<u8> = Vec::new();
-    
+
     fhandle.read_to_end(&mut vecy)?;
     vecy = to_normalized_vec(&vecy);
 
-    return Ok(import_variables(&vecy)?);
+    import_variables(&vecy)
 }

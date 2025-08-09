@@ -11,13 +11,14 @@ use crate::interpreter_facilities::*;
 use std::collections::HashMap;
 use std::io::ErrorKind;
 
-pub fn var(result: &mut Vec<u8>,
-        origin: &[u8],
-        last: &mut usize,
-        current: &mut usize, 
-        vars: &HashMap<String, Vec<u8>>,
-        anon_stack: &mut Vec<Vec<u8>>
-    ) -> Result<(), std::io::Error> {
+pub fn var(
+    result: &mut Vec<u8>,
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize,
+    vars: &HashMap<String, Vec<u8>>,
+    anon_stack: &mut Vec<Vec<u8>>,
+) -> Result<(), std::io::Error> {
     let arg: String = get_word(origin, last, current)?;
 
     let vari: Vec<u8> = match vars.get(&arg) {

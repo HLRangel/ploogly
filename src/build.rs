@@ -6,38 +6,38 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-use crate::interpreter_facilities::*;
-use crate::var_imports::*;
 use crate::docdata::*;
+use crate::interpreter_facilities::*;
 use crate::produce::*;
+use crate::var_imports::*;
 
 use std::collections::HashMap;
-use std::io::{Read, Write, ErrorKind};
 use std::fs::*;
+use std::io::{ErrorKind, Read, Write};
 
-fn template(path: &str,
-            root_path: &str,
-            name: &str, 
-            cache: &mut HashMap<String, DocData>) -> Result<(), std::io::Error> {
+fn template(
+    path: &str,
+    root_path: &str,
+    name: &str,
+    cache: &mut HashMap<String, DocData>,
+) -> Result<(), std::io::Error> {
     // Open file for reading
     let file_path: String = format!("{path}/{name}");
     let mut file: File = File::open(&file_path)?;
 
-
-    // Create destination directories   
+    // Create destination directories
     let mut newpath = path.to_string();
     if newpath.starts_with("./") {
         newpath = newpath.replace("./", "");
     }
-    
+
     let mut path_name: String = path.replace(root_path, "");
     path_name = format!("{path_name}/{name}");
 
     if path_name.starts_with("/") {
         path_name = path_name.replacen("/", "", 1);
     }
-    
-    
+
     newpath = "out/".to_string() + &newpath;
     if !exists(&newpath)? {
         create_dir_all(&newpath)?;
@@ -62,9 +62,9 @@ fn template(path: &str,
             Err(err) => {
                 eprintln!("Build failed! Error first provoked on file {file_path}");
                 return Err(err);
-            },
+            }
 
-            Ok(data) => data
+            Ok(data) => data,
         }
     } else {
         result = data;
@@ -77,18 +77,19 @@ fn template(path: &str,
     return Ok(());
 }
 
-fn navigate_files(path: &str,
-                    root_path: &str,
-                    cache: &mut HashMap<String, DocData>
-                ) -> Result<(), std::io::Error>{
+fn navigate_files(
+    path: &str,
+    root_path: &str,
+    cache: &mut HashMap<String, DocData>,
+) -> Result<(), std::io::Error> {
     let pathdata: Metadata = metadata(path)?;
 
     if pathdata.is_dir() {
         for dir in read_dir(path)? {
             let name: String = dir?.file_name().into_string().unwrap();
             let fpath: String = format!("{path}/{name}");
-            
-            let data: Metadata = metadata(&fpath)?; 
+
+            let data: Metadata = metadata(&fpath)?;
             if data.is_dir() {
                 navigate_files(&fpath, root_path, cache)?;
             } else if data.is_file() {

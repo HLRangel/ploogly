@@ -25,12 +25,12 @@ fn path_as_relative(mut path: String) -> PathBuf {
     predir
 }
 
-pub fn redir(origin: &[u8],
-        last: &mut usize,
-        current: &mut usize, 
-        vars: &mut HashMap<String, Vec<u8>>,
-    ) -> Result<(), std::io::Error>{
-    
+pub fn redir(
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize,
+    vars: &mut HashMap<String, Vec<u8>>,
+) -> Result<(), std::io::Error> {
     let mut to: PathBuf = path_as_relative(get_word_or_literal(origin, last, current)?);
     let mut to_dir: PathBuf = to.clone();
 
@@ -44,17 +44,16 @@ pub fn redir(origin: &[u8],
         create_dir_all(to_dir.to_str().unwrap())?;
     }
 
-    let varpath: String = String::from_utf8(
-        match vars.get("path") {
-            Some(var) => var.to_vec(),
-            _ => {
-                return Err(ErrorKind::Unsupported.into())
-            }
-        }
-    ).unwrap();
-     
-    create_file_from_str(to.to_str().unwrap(), &format!
-    ("<!DOCTYPE html>
+    let varpath: String = String::from_utf8(match vars.get("path") {
+        Some(var) => var.to_vec(),
+        _ => return Err(ErrorKind::Unsupported.into()),
+    })
+    .unwrap();
+
+    create_file_from_str(
+        to.to_str().unwrap(),
+        &format!(
+            "<!DOCTYPE html>
         <html>\
             <body>\
                 <p>If the page does not automatically redirect...</p>\
@@ -64,7 +63,9 @@ pub fn redir(origin: &[u8],
                 </script>
             </body>\
         </html>
-    "));
+    "
+        ),
+    );
 
     Ok(())
 }

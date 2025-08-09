@@ -7,17 +7,17 @@
 */
 
 use crate::build::*;
-use crate::serve::lua_gen::*;
 use crate::serve::data::*;
+use crate::serve::lua_gen::*;
 
-use tiny_http::{Server, Response, Method};
-use std::sync::{Arc, Mutex};
-use std::{path::PathBuf, str::FromStr};
-use std::fs::{canonicalize, exists, File};
-use std::string::*;
-use std::thread::spawn;
-use std::io::stdin;
+use std::fs::{File, canonicalize, exists};
 use std::io::ErrorKind;
+use std::io::stdin;
+use std::string::*;
+use std::sync::{Arc, Mutex};
+use std::thread::spawn;
+use std::{path::PathBuf, str::FromStr};
+use tiny_http::{Method, Response, Server};
 
 fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io::Error> {
     let path: PathBuf = canonicalize(PathBuf::from_str(dir).unwrap())?;
@@ -28,34 +28,28 @@ fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io
             Method::Get | Method::Post => {
                 let mut req: String = request.url().to_string();
                 req = match req.as_str() {
-                    "/" => {
-                        "/index.html".to_string()
-                    },
+                    "/" => "/index.html".to_string(),
 
-                    _ => {
-                        req
-                    }
+                    _ => req,
                 };
-                
-                let mut path_to: String = String::from_str(path.join(
-                                    req.strip_prefix("/").unwrap()
-                                    ).to_str().unwrap()).unwrap();
+
+                let mut path_to: String =
+                    String::from_str(path.join(req.strip_prefix("/").unwrap()).to_str().unwrap())
+                        .unwrap();
 
                 if path_to.ends_with("/") {
                     path_to.push_str("index.html");
                 }
-                
-                
-                let mut info: ReqInfo = getreqinfo(&path_to, 
-                                            TinyHTTPMethod(request.method().clone())
-                                                        .to_reqmethod()
-                                                    );
+
+                let mut info: ReqInfo = getreqinfo(
+                    &path_to,
+                    TinyHTTPMethod(request.method().clone()).to_reqmethod(),
+                );
                 path_to = info.data.path.clone();
 
                 if *request.method() == Method::Post {
                     let mut body: String = String::new();
                     request.as_reader().read_to_string(&mut body)?;
-
 
                     let mut entries: Vec<Entry> = url_query_to_entries(&body);
                     if !info.entries.is_none() {
@@ -86,7 +80,7 @@ fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io
                 if *comm.lock().unwrap() == 1 {
                     return Ok(());
                 }
-            }, 
+            }
 
             _ => {
                 eprintln!("Came across an unsupported request type. Ignored.");
@@ -97,17 +91,20 @@ fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io
     return Ok(());
 }
 
-pub fn serve_control(port: String) -> Result<(), std::io::Error>{
+pub fn serve_control(port: String) -> Result<(), std::io::Error> {
     if exists("./out/site")? {
         let sp: Arc<Mutex<u8>> = Arc::new(Mutex::new(0));
         let rp: Arc<Mutex<u8>> = sp.clone();
-        
+
         let mut ended: bool = false;
 
-        println!("Serving on 127.0.0.1:{}, access http://127.0.0.1:{} to view! \
+        println!(
+            "Serving on 127.0.0.1:{}, access http://127.0.0.1:{} to view! \
         \nPress R, then Enter to rebuild the project \
         \nPress L, then Enter to properly quit after serving the next request. \
-        \nPress Q, then Enter to force quit.\n\n", &port, &port);
+        \nPress Q, then Enter to force quit.\n\n",
+            &port, &port
+        );
 
         let handle = spawn(move || listen_dir(&port, "./out/site", rp));
 
@@ -125,13 +122,13 @@ pub fn serve_control(port: String) -> Result<(), std::io::Error>{
                     *sp.lock().unwrap() = 1;
 
                     return Ok(());
-                },
+                }
 
                 b'L' | b'l' => {
                     *sp.lock().unwrap() = 1;
 
                     ended = true;
-                },
+                }
 
                 _ => {
                     println!("Unrecognized input!");

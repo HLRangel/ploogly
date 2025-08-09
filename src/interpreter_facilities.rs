@@ -11,12 +11,11 @@
 use crate::docdata::*;
 use crate::produce::*;
 
-use std::{io::ErrorKind, str::FromStr};
 use std::collections::HashMap;
-
+use std::{io::ErrorKind, str::FromStr};
 
 pub fn is_eof(origin: &[u8], val: usize) -> bool {
-    return val >= origin.len();
+    val >= origin.len()
 }
 
 /*
@@ -35,13 +34,11 @@ pub fn lineno(origin: &[u8], current: usize) -> u64 {
 } */
 
 pub fn is_twobracket_r(origin: &[u8], current: usize) -> bool {
-    return origin[current] == b'}' && 
-        (!is_eof(origin, current) && origin[current + 1] == b'}');
+    origin[current] == b'}' && (!is_eof(origin, current) && origin[current + 1] == b'}')
 }
 
 pub fn is_terminator(origin: &[u8], current: &mut usize) -> bool {
-    return is_eof(origin, *current) || 
-                is_twobracket_r(origin, *current);
+    is_eof(origin, *current) || is_twobracket_r(origin, *current)
 }
 
 pub fn to_next_notwp(origin: &[u8], current: &mut usize) {
@@ -51,15 +48,14 @@ pub fn to_next_notwp(origin: &[u8], current: &mut usize) {
 }
 
 pub fn to_next_wp_or_nl(origin: &[u8], current: &mut usize) {
-    while !is_terminator(origin, current) && 
-        origin[*current] != b' ' && origin[*current] != b'\n' {
+    while !is_terminator(origin, current) && origin[*current] != b' ' && origin[*current] != b'\n' {
         *current += 1;
     }
 }
 
-/*  Given the position right after two opening brackets, 
+/*  Given the position right after two opening brackets,
     match all upcoming brackets so as to complete the pair of braces.
-    
+
     {{ {{ {{ }} }} }}
       ^              ^
       |current       |
@@ -74,7 +70,7 @@ pub fn match_twobrackets(origin: &[u8], current: &mut usize) {
                     *current += 2;
                     match_twobrackets(origin, current);
                 }
-            },
+            }
 
             b'}' => {
                 if !is_eof(origin, *current + 1) && origin[*current + 1] == b'}' {
@@ -96,8 +92,9 @@ pub fn to_normalized_vec(origin: &[u8]) -> Vec<u8> {
     let mut current: usize = 0;
 
     while !is_eof(origin, current) {
-        if origin[current] == b'\r' && 
-                (!is_eof(origin, current + 1) && origin[current + 1] == b'\n') {
+        if origin[current] == b'\r'
+            && (!is_eof(origin, current + 1) && origin[current + 1] == b'\n')
+        {
             toret.push(b'\n');
             current += 2;
         } else {
@@ -106,10 +103,14 @@ pub fn to_normalized_vec(origin: &[u8]) -> Vec<u8> {
         }
     }
 
-    return toret;
+    toret
 }
 
-pub fn get_word(origin: &[u8], last: &mut usize, current: &mut usize) -> Result<String, std::io::Error> {
+pub fn get_word(
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize,
+) -> Result<String, std::io::Error> {
     to_next_notwp(origin, current);
     *last = *current;
 
@@ -119,12 +120,12 @@ pub fn get_word(origin: &[u8], last: &mut usize, current: &mut usize) -> Result<
         return Err(ErrorKind::InvalidInput.into());
     }
 
-    let ret: String = String::from_utf8(origin[*last..*current].to_vec())
-                        .expect("Err on utf8 conversion!");
-    
+    let ret: String =
+        String::from_utf8(origin[*last..*current].to_vec()).expect("Err on utf8 conversion!");
+
     *last = *current;
 
-    return Ok(ret);
+    Ok(ret)
 }
 
 pub fn highlight_word_ltr(origin: &[u8], current: usize) -> String {
@@ -139,16 +140,18 @@ pub fn highlight_word_ltr(origin: &[u8], current: usize) -> String {
         }
 
         return String::from_utf8(origin[new_last..current].to_vec())
-        .expect("Err on utf8 conversion!");
+            .expect("Err on utf8 conversion!");
     }
-        
-    return String::from_str("undefined").unwrap();
+
+    String::from_str("undefined").unwrap()
 }
 
-pub fn get_inner(origin: &[u8], last: &mut usize, current: &mut usize) -> Result<Vec<u8>, std::io::Error> {
-    while !is_eof(origin, *current) && 
-        origin[*current] != b'\n' &&
-        origin[*current] != b'\\' {
+pub fn get_inner(
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize,
+) -> Result<Vec<u8>, std::io::Error> {
+    while !is_eof(origin, *current) && origin[*current] != b'\n' && origin[*current] != b'\\' {
         *current += 1;
     }
 
@@ -162,21 +165,25 @@ pub fn get_inner(origin: &[u8], last: &mut usize, current: &mut usize) -> Result
 
     match_twobrackets(origin, current);
 
-    return Ok(origin[*last..(*current - 2)].to_vec());
+    Ok(origin[*last..(*current - 2)].to_vec())
 }
 
-pub fn quote_literal(origin: &[u8], last: &mut usize, current: &mut usize) -> Result<String, std::io::Error> {
+pub fn quote_literal(
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize,
+) -> Result<String, std::io::Error> {
     *last = *current;
-    
+
     while !is_eof(origin, *current) && origin[*current] != b'"' {
         match origin[*current] {
             b'\\' => {
-                *current += 2; 
-            },
+                *current += 2;
+            }
 
             b'\n' => {
                 return Err(ErrorKind::InvalidInput.into());
-            },
+            }
 
             _ => {
                 *current += 1;
@@ -188,27 +195,30 @@ pub fn quote_literal(origin: &[u8], last: &mut usize, current: &mut usize) -> Re
         *current += 1;
     }
 
-    return Ok(String::from_utf8(origin[*last..(*current - 1)].to_vec())
-            .expect("Error on utf-8 conversion!"));
+    Ok(String::from_utf8(origin[*last..(*current - 1)].to_vec())
+        .expect("Error on utf-8 conversion!"))
 }
 
-pub fn get_word_or_literal(origin: &[u8], last: &mut usize, current: &mut usize) -> Result<String, std::io::Error> {
+pub fn get_word_or_literal(
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize,
+) -> Result<String, std::io::Error> {
     to_next_notwp(origin, current);
 
     if origin[*current] == b'"' {
         *current += 1;
-        return Ok(quote_literal(origin, last, current)?);
+        quote_literal(origin, last, current)
     } else {
-        return Ok(get_word(origin, last, current)?);
+        get_word(origin, last, current)
     }
 }
 
 pub fn is_char_n(origin: &[u8], val: usize, n: u8) -> bool {
-    return !is_eof(origin, val) && origin[val] == n;
+    !is_eof(origin, val) && origin[val] == n
 }
 
-pub fn is_n_chars(origin: &[u8], current: usize,
-    charto: u8, occ: usize) -> bool {
+pub fn is_n_chars(origin: &[u8], current: usize, charto: u8, occ: usize) -> bool {
     if occ < 1 {
         return false;
     }
@@ -220,20 +230,25 @@ pub fn is_n_chars(origin: &[u8], current: usize,
         }
     }
 
-    return ok;
+    ok
 }
 
-pub fn is_n_chars_before_n(origin: &[u8], current: usize, charto: u8,
-            occ: usize, charbe: u8) -> bool {
-    return is_n_chars(origin, current, charto, occ) && 
-        !is_eof(origin, current + 1 + (occ - 1)) && 
-        origin[current + 1 + (occ - 1)] == charbe;
+pub fn is_n_chars_before_n(
+    origin: &[u8],
+    current: usize,
+    charto: u8,
+    occ: usize,
+    charbe: u8,
+) -> bool {
+    is_n_chars(origin, current, charto, occ)
+        && !is_eof(origin, current + 1 + (occ - 1))
+        && origin[current + 1 + (occ - 1)] == charbe
 }
 
 pub fn is_three_rarrow(origin: &[u8], current: usize) -> bool {
-    return is_char_n(origin, current, b'>') &&
-                is_char_n(origin, current + 1, b'>') &&
-                is_char_n(origin, current + 2, b'>');
+    is_char_n(origin, current, b'>')
+        && is_char_n(origin, current + 1, b'>')
+        && is_char_n(origin, current + 2, b'>')
 }
 
 pub fn nl_into_br(origin: &[u8]) -> Vec<u8> {
@@ -243,10 +258,10 @@ pub fn nl_into_br(origin: &[u8]) -> Vec<u8> {
     while !is_eof(origin, current) {
         match origin[current] {
             b'\n' => {
-                result.append(& mut("<br>".as_bytes().to_vec()));
+                result.append(&mut ("<br>".as_bytes().to_vec()));
                 current += 1;
-            },
-            
+            }
+
             _ => {
                 result.push(origin[current]);
                 current += 1;
@@ -254,54 +269,55 @@ pub fn nl_into_br(origin: &[u8]) -> Vec<u8> {
         }
     }
 
-    return result;
+    result
 }
 
-pub fn get_data_to_end(origin: &[u8], 
-                    last: &mut usize, 
-                    current: &mut usize
-                ) -> Vec<u8> {
+pub fn get_data_to_end(origin: &[u8], last: &mut usize, current: &mut usize) -> Vec<u8> {
     *last = *current;
 
     while !is_eof(origin, *current) {
         *current += 1;
     }
 
-    return origin[*last..*current].to_vec();
+    origin[*last..*current].to_vec()
 }
 
 pub fn is_html_comment_start(origin: &[u8], current: usize) -> bool {
-    return is_char_n(origin, current, b'<') &&
-            is_char_n(origin, current + 1, b'!') &&
-            is_n_chars(origin, current + 2, b'-', 2);
+    is_char_n(origin, current, b'<')
+        && is_char_n(origin, current + 1, b'!')
+        && is_n_chars(origin, current + 2, b'-', 2)
 }
 
 pub fn is_html_comment_end(origin: &[u8], current: usize) -> bool {
-    return is_n_chars(origin, current, b'-', 2) &&
-            is_char_n(origin, current + 2, b'>');
+    is_n_chars(origin, current, b'-', 2) && is_char_n(origin, current + 2, b'>')
 }
 
-pub fn get_worl_produce(origin: &[u8], 
-            current: &mut usize,
-            last: &mut usize, 
-            vars: &mut HashMap<String, Vec<u8>>,
-            cache: &mut HashMap<String, DocData>,
-            anon_stack: &mut Vec<Vec<u8>>
-        ) -> Result<Vec<u8>, std::io::Error> {
+pub fn get_worl_produce(
+    origin: &[u8],
+    current: &mut usize,
+    last: &mut usize,
+    vars: &mut HashMap<String, Vec<u8>>,
+    cache: &mut HashMap<String, DocData>,
+    anon_stack: &mut Vec<Vec<u8>>,
+) -> Result<Vec<u8>, std::io::Error> {
     let mut varsc: HashMap<String, Vec<u8>> = vars.clone();
     let toprod: String = get_word_or_literal(origin, last, current)?;
 
     let result: Vec<u8> = produce(toprod.as_bytes(), &mut varsc, cache, anon_stack)?;
 
-    return Ok(result);
+    Ok(result)
 }
 
-pub fn get_separated_arguments(origin: &[u8], last: &mut usize, current: &mut usize) -> Result<Vec<Vec<u8>>, std::io::Error>{
+pub fn get_separated_arguments(
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize,
+) -> Result<Vec<Vec<u8>>, std::io::Error> {
     if !is_eof(origin, *current) {
         to_next_notwp(origin, current);
 
         let mut argvc: Vec<Vec<u8>> = Vec::new();
-        
+
         *last = *current;
         while !is_twobracket_r(origin, *current) {
             let arg: String = get_word_or_literal(origin, last, current)?;
@@ -312,5 +328,5 @@ pub fn get_separated_arguments(origin: &[u8], last: &mut usize, current: &mut us
         return Ok(argvc);
     }
 
-    return Err(ErrorKind::InvalidInput.into());
+    Err(ErrorKind::InvalidInput.into())
 }
