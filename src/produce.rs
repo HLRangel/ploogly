@@ -19,6 +19,7 @@ use crate::commands::template::*;
 use crate::commands::truncate::*;
 use crate::commands::unset::*;
 use crate::commands::var::*;
+use crate::commands::iter_dir::*;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
@@ -148,6 +149,12 @@ pub fn produce(
 
                             "redir" => {
                                 redir(origin, &mut last, &mut current, vars)?;
+                            }
+
+                            "iter_dir" => {
+                                let mut tores: Vec<u8> = iter_dir(origin, &mut last, &mut current, cache, vars, anon_stack)?;
+
+                                result.append(&mut tores);
                             }
 
                             _ => {

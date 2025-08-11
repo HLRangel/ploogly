@@ -16,3 +16,4 @@ pub mod template;
 pub mod truncate;
 pub mod unset;
 pub mod var;
+pub mod iter_dir;

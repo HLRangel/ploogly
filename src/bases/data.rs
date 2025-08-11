@@ -1,4 +1,5 @@
 /*use std::collections::HashMap;
+use std::fs::exists;
 
 struct ProdInfo {
     hash:   u64,
@@ -27,4 +28,10 @@ fn base_to_file(base: &Base, path: &str) {
 
 fn base_from_file(path: &str) -> Base {
 
+}
+
+fn base_add(base: &Base, path: &str) {
+    if exists(path) {
+
+    }
 }*/
