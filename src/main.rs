@@ -10,6 +10,12 @@
     Project: Ploogly
     Description: Ad-hoc templating engine for HTML documents.
     Author: HLRangel
+
+    Project notes:
+
+        - We need a way to determine if something is HTML, MD,
+        etc, that doesn't just involve blind trust is .ends_with()
+        Issue present in: bases/data.rs, file.rs
 */
 
 mod bases;
@@ -23,6 +29,7 @@ mod new;
 mod produce;
 mod serve;
 mod var_imports;
+mod misc;
 
 use crate::build::*;
 use crate::new::*;
