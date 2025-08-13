@@ -5,6 +5,51 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
+use std::collections::HashMap;
+
+use crate::interpreter_facilities::*;
+use crate::var_imports::import_variables;
+
+pub fn get_frontmatter_block(
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize,
+) -> Result<Vec<u8>, std::io::Error> {
+    if is_n_chars_before_n(origin, *current, b'-', 3, b'\n') {
+        *current += 4;
+
+        *last = *current;
+
+        while !is_eof(origin, *current) {
+            if origin[*current] == b'\n'
+                && is_n_chars_before_n(origin, *current + 1, b'-', 3, b'\n')
+            {
+                *current += 4;
+
+                return Ok(origin[*last..*current - 4].to_vec());
+            }
+
+            *current += 1;
+        }
+
+        return Err(ErrorKind::InvalidInput.into());
+    }
+
+    Err(ErrorKind::InvalidInput.into())
+}
+
+pub fn get_frontmatter_ctx(
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize,
+) -> Result<HashMap<String, Vec<u8>>, std::io::Error> {
+    let fmtxt: Vec<u8> = match get_frontmatter_block(origin, last, current) {
+        Ok(res) => res,
+        Err(_) => "title: Undefined Title".as_bytes().to_vec(),
+    };
+
+    import_variables(&fmtxt)
+}
 
 /*
     The Ploogly distribution depends on markdown-rs,

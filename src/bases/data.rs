@@ -11,11 +11,16 @@ use std::io::ErrorKind;
 /* NOTA BENE!
 
     Still need a way to store KV state so we don't have to re-produce the doc...
+
+    If it's Markdown: get frontmatter data, put into kv
+    If it's HTML: find some other way, ig
 */
 
 struct ProdInfo {
     hash:   u64,
-    data:   Vec<u8>
+    data:   Vec<u8>,
+    path:   String,
+    ctx:    Vec<(String, Vec<u8>)>
 }
 
 enum BaseData {
@@ -42,6 +47,42 @@ fn base_from_file(path: &str) -> Base {
 
 }
 
+// Return elements from a which do not exist in b
+fn disjunct_tuplevec<T: PartialEq + Copy, U: PartialEq + Copy>(
+    a: &Vec<(T, U)>, b: &Vec<(T, U)>
+) -> Vec<(T, U)>{
+    let mut toret: Vec<(T, U)> = Vec::new();
+
+    for tuple in a {
+        let mut push: bool = true;
+
+        for subtuple in b {
+            if tuple == subtuple {
+                push = false;
+                break;
+            }
+        }
+
+        if push {
+            toret.push(tuple.clone());
+        }
+    }
+
+    toret
+}
+
+fn varmap_to_tuple(
+    vars: &HashMap<String, Vec<u8>>
+) -> Result<Vec<(String, Vec<u8>)>, std::io::Error> {
+    let mut res: Vec<(String, Vec<u8>)> = Vec::new();
+
+    for (k, v) in vars.into_iter() {
+        res.push((k.clone(), v.clone()));
+    }
+
+    Ok(res)
+}
+
 fn hash_state(
     cache: &mut HashMap<String, DocData>,
     vars: &mut HashMap<String, Vec<u8>>,
@@ -51,6 +92,10 @@ fn hash_state(
     anon_stack.hash(&mut h);
 
     hash_hashmap(vars) ^ hash_hashmap(cache) ^ h.finish()
+}
+
+fn getprodinfo(path: &str) -> Result<ProdInfo, std::io::Error> {
+    
 }
 
 fn produce_base(
@@ -79,10 +124,7 @@ fn produce_base(
 
 
                 BaseData::Produced(                
-                    ProdInfo {
-                        data: result,
-                        hash: hash_state(cache, vars, anon_stack) ^ h.finish()
-                    }
+                    getprodinfo(&base.bases[i].path)?
                 )
             }
         };
