@@ -4,22 +4,42 @@ use crate::misc::hash_hashmap;
 use crate::produce::produce;
 
 use std::collections::HashMap;
-use std::fs::{exists, metadata, Metadata};
+use std::fs::{exists, metadata, Metadata, File};
 use std::hash::{DefaultHasher, Hash, Hasher};
-use std::io::ErrorKind;
+use std::io::{ErrorKind, Read};
 
 /* NOTA BENE!
 
     Still need a way to store KV state so we don't have to re-produce the doc...
 
     If it's Markdown: get frontmatter data, put into kv
-    If it's HTML: find some other way, ig
-*/
+    If it's HTML: find some other way, Okay
+ */
+
+/* ig, so off the top of my head, there are a few ways to go about this.
+
+Essentially, we want the user to access the elements of the inner context
+during the process of production in the produce_base iterator block. This
+effectively means that we store
+
+- The file path
+- A hash of the file metadata
+- The file's produced content
+- The disjunction of the inner context with the outer / the frontmatter
+
+ALSO, producing a base should not create new files. We need a new command,
+e.g create_file_at, to create a file from a var. Also, introduce text
+trimming functions and regex to allow the user to do procedural file
+paths as they desire.
+
+The iterator should, eventually, allow access only to docdata and the
+key-value pair...
+ */
+
 
 struct ProdInfo {
     hash:   u64,
     data:   Vec<u8>,
-    path:   String,
     ctx:    Vec<(String, Vec<u8>)>
 }
 
@@ -43,12 +63,13 @@ fn base_to_file(base: &Base, path: &str) {
 
 }
 
+
 fn base_from_file(path: &str) -> Base {
 
 }
 
 // Return elements from a which do not exist in b
-fn disjunct_tuplevec<T: PartialEq + Copy, U: PartialEq + Copy>(
+fn disjunct_tuplevec<T: PartialEq + Clone, U: PartialEq + Clone>(
     a: &Vec<(T, U)>, b: &Vec<(T, U)>
 ) -> Vec<(T, U)>{
     let mut toret: Vec<(T, U)> = Vec::new();
@@ -83,16 +104,6 @@ fn varmap_to_tuple(
     Ok(res)
 }
 
-fn hash_state(
-    cache: &mut HashMap<String, DocData>,
-    vars: &mut HashMap<String, Vec<u8>>,
-    anon_stack: &mut Vec<Vec<u8>>
-) -> u64 {
-    let mut h = DefaultHasher::new();
-    anon_stack.hash(&mut h);
-
-    hash_hashmap(vars) ^ hash_hashmap(cache) ^ h.finish()
-}
 
 fn getprodinfo(path: &str) -> Result<ProdInfo, std::io::Error> {
     
@@ -105,31 +116,40 @@ fn produce_base(
     anon_stack: &mut Vec<Vec<u8>>
 ) -> Result<(), std::io::Error> {
     for i in 0..base.bases.len() {
-        let mut result: Vec<u8> = Vec::new();
-        
-        let data: BaseData = match inclusion_into_result(
-                                    &mut result,
-                                    vars, 
-                                    cache, 
-                                    anon_stack, 
-                                    &base.bases[i].path
-        ) {
-            Ok(_) => {
-                BaseData::Abstract
-            },
 
-            Err(_) => {
-                let mut h: DefaultHasher = DefaultHasher::new();
-                result.hash(&mut h);
+	// What we need here: a way to determine HTML, e.g ishtml(), ismd()
+	// If we want to avoid opening the file, maybe a "parseas" override?
+	if exists(base.bases[i].path)? {
+	    // get metadata
+	    let file_meta: Metadata = metadata(base.bases[i].path)?;
+	    let mut result: Vec<u8> = Vec::new();
+	    
+	    if file_meta.is_dir() {
+		// everything else
+		if base.bases[i].path.ends_with(".html") || base.bases[i].path.ends_with(".htm") {
+		    let vars_pre: Vec<(String, Vec<u8>)> = varmap_to_tuple(vars)?;
+		    
+		    inclusion_into_result(&mut result, vars, cache, anon_stack, &base.bases[i].path)?;
+		    
+		    let to_store: Vec<(String, Vec<u8>)> = disjunct_tuplevec(&varmap_to_tuple(vars)?, &vars_pre);
 
+		    base.bases[i].data = BaseData::Produced(ProdInfo {
 
-                BaseData::Produced(                
-                    getprodinfo(&base.bases[i].path)?
-                )
-            }
-        };
+		    });
+		} else if base.bases[i].path.ends_with(".md") || base.bases[i].path.ends_with(".markdown") {
 
-        base.bases[i].data = data;
+		} else {
+		    let open_file = File::open(base.bases[i].path)?;
+		    open_file.read_to_end(&mut result)?;
+		    
+		    base.bases[i].data = BaseData::Produced(ProdInfo {
+
+		    });
+		}
+
+		let file_len = file_meta.len();
+	    }
+	}
     }
 
     Ok(())
@@ -147,6 +167,8 @@ fn base_add(base: &mut Base, path: &str) -> Result<(), std::io::Error> {
                     data: BaseData::Abstract
                 }
             );
+
+	    base.tallest += 1;
         } else {
             return Err(ErrorKind::InvalidInput.into());
         }

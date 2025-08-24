@@ -17,12 +17,3 @@ pub struct DocData {
     pub path: String,
     pub data: Vec<u8>,
 }
-
-
-impl Hash for DocData {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        hash_hashmap(&self.ctx).hash(state);
-        self.path.hash(state);
-        self.data.hash(state);
-    }
-}

@@ -168,6 +168,33 @@ pub fn get_inner(
     Ok(origin[*last..(*current - 2)].to_vec())
 }
 
+pub fn single_quote_literal(
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize,
+) -> Result<String, std::io::Error> {
+    *last = *current;
+
+    while !is_eof(origin, *current) && origin[*current] != b'\'' {
+        match origin[*current] {
+            b'\\' => {
+                *current += 2;
+            }
+
+            _ => {
+                *current += 1;
+            }
+        }
+    }
+
+    if !is_eof(origin, *current) {
+        *current += 1;
+    }
+
+    Ok(String::from_utf8(origin[*last..(*current - 1)].to_vec())
+        .expect("Error on utf-8 conversion!"))
+}
+
 pub fn quote_literal(
     origin: &[u8],
     last: &mut usize,
@@ -209,8 +236,11 @@ pub fn get_word_or_literal(
     if origin[*current] == b'"' {
         *current += 1;
         quote_literal(origin, last, current)
+    } else if origin[*current] == b'\'' {
+        *current += 1;
+	single_quote_literal(origin, last, current)
     } else {
-        get_word(origin, last, current)
+	get_word(origin, last, current)
     }
 }
 

@@ -105,7 +105,7 @@ fn navigate_files(
 
 pub fn build() -> Result<(), std::io::Error> {
     if exists("./project.ssg")? {
-        let mut doccache: HashMap<String, DocData> = HashMap::new();
+	let mut doccache: HashMap<String, DocData> = HashMap::new();
 
         remove_dir_all("./out")?;
         create_dir("./out")?;
