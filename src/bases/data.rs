@@ -1,7 +1,7 @@
 use crate::docdata::DocData;
 use crate::file::inclusion_into_result;
-use crate::misc::hash_hashmap;
-use crate::produce::produce;
+use crate::md2html::*;
+use crate::interpreter_facilities::get_data_to_end;
 
 use std::collections::HashMap;
 use std::fs::{exists, metadata, Metadata, File};
@@ -36,11 +36,15 @@ The iterator should, eventually, allow access only to docdata and the
 key-value pair...
  */
 
+enum Context {
+    Absent,
+    Exists(Vec<(String, Vec<u8>)>)
+}
 
 struct ProdInfo {
-    hash:   u64,
+    oglen:  u64,
     data:   Vec<u8>,
-    ctx:    Vec<(String, Vec<u8>)>
+    ctx:    Context
 }
 
 enum BaseData {
@@ -104,11 +108,6 @@ fn varmap_to_tuple(
     Ok(res)
 }
 
-
-fn getprodinfo(path: &str) -> Result<ProdInfo, std::io::Error> {
-    
-}
-
 fn produce_base(
     base: &mut Base,
     cache: &mut HashMap<String, DocData>,
@@ -119,12 +118,14 @@ fn produce_base(
 
 	// What we need here: a way to determine HTML, e.g ishtml(), ismd()
 	// If we want to avoid opening the file, maybe a "parseas" override?
-	if exists(base.bases[i].path)? {
+	if exists(&base.bases[i].path)? {
 	    // get metadata
-	    let file_meta: Metadata = metadata(base.bases[i].path)?;
+	    let file_meta: Metadata = metadata(&base.bases[i].path)?;
+	    let file_len: u64 = file_meta.len();
+
 	    let mut result: Vec<u8> = Vec::new();
 	    
-	    if file_meta.is_dir() {
+	    if !file_meta.is_dir() {
 		// everything else
 		if base.bases[i].path.ends_with(".html") || base.bases[i].path.ends_with(".htm") {
 		    let vars_pre: Vec<(String, Vec<u8>)> = varmap_to_tuple(vars)?;
@@ -134,20 +135,38 @@ fn produce_base(
 		    let to_store: Vec<(String, Vec<u8>)> = disjunct_tuplevec(&varmap_to_tuple(vars)?, &vars_pre);
 
 		    base.bases[i].data = BaseData::Produced(ProdInfo {
-
+			oglen: file_len,
+			data: result,
+			ctx: Context::Exists(to_store.clone())
 		    });
 		} else if base.bases[i].path.ends_with(".md") || base.bases[i].path.ends_with(".markdown") {
+		    let mut origin: Vec<u8> = Vec::new();
+		    File::open(&base.bases[i].path)?.read_to_end(&mut origin)?;
 
+		    let mut current: usize = 0;
+		    let mut last: usize = 0;
+
+		    let md_ctx: Vec<(String, Vec<u8>)> = varmap_to_tuple(
+			&get_frontmatter_ctx(&origin, &mut last, &mut current)?)?;
+
+		    result = to_md(&get_data_to_end(&origin, &mut last, &mut current))?;
+
+		    base.bases[i].data = BaseData::Produced(ProdInfo {
+			oglen: file_len,
+			data: result,
+			ctx: Context::Absent
+		    });
 		} else {
-		    let open_file = File::open(base.bases[i].path)?;
+		    // Treat as plaintext
+		    let mut open_file = File::open(&base.bases[i].path)?;
 		    open_file.read_to_end(&mut result)?;
 		    
 		    base.bases[i].data = BaseData::Produced(ProdInfo {
-
+			oglen: file_len,
+			data: result,
+			ctx: Context::Absent
 		    });
 		}
-
-		let file_len = file_meta.len();
 	    }
 	}
     }
