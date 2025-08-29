@@ -63,6 +63,17 @@ struct Base {
     bases: Vec<BaseEntry>
 }
 
+/*Base binary format:
+ENTRIESNO ENTRY...
+
+ENTRY: ID PATH HASDATA [DATA]
+
+DATA: OFLEN DATASZ HASCTX [CTX]
+
+CTX: CTXNO DCTX...
+
+DCTX: CSTR_NAME CONTENT_SZ CONTENT
+ */
 fn base_to_binvec(base: &Base) -> Result<Vec<u8>, std::io::Error> {
     let mut result: Vec<u8> = Vec::new();
     
