@@ -63,12 +63,18 @@ struct Base {
     bases: Vec<BaseEntry>
 }
 
-fn base_to_file(base: &Base, path: &str) {
+fn base_to_binvec(base: &Base) -> Result<Vec<u8>, std::io::Error> {
+    let mut result: Vec<u8> = Vec::new();
+    
+    for entry in base {
 
+    }
+
+    Ok(result)
 }
 
 
-fn base_from_file(path: &str) -> Base {
+fn binvec_to_base(binvec: &[u8]) -> Base {
 
 }
 
