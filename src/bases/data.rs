@@ -74,11 +74,15 @@ CTX: CTXNO DCTX...
 
 DCTX: CSTR_NAME CONTENT_SZ CONTENT
  */
+
+/*
 fn base_to_binvec(base: &Base) -> Result<Vec<u8>, std::io::Error> {
     let mut result: Vec<u8> = Vec::new();
+    result.append(base.tallest.to);
     
     for entry in base {
 
+	
     }
 
     Ok(result)
@@ -87,7 +91,7 @@ fn base_to_binvec(base: &Base) -> Result<Vec<u8>, std::io::Error> {
 
 fn binvec_to_base(binvec: &[u8]) -> Base {
 
-}
+}*/
 
 // Return elements from a which do not exist in b
 fn disjunct_tuplevec<T: PartialEq + Clone, U: PartialEq + Clone>(

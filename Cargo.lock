@@ -213,6 +213,7 @@ version = "0.5.0"
 dependencies = [
  "markdown",
  "mlua",
+ "serde",
  "tiny_http",
 ]
 
