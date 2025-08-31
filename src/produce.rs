@@ -20,6 +20,8 @@ use crate::commands::truncate::*;
 use crate::commands::unset::*;
 use crate::commands::var::*;
 use crate::commands::iter_dir::*;
+use crate::commands::add_document::*;
+use crate::commands::produce_base::*;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
@@ -156,6 +158,14 @@ pub fn produce(
 
                                 result.append(&mut tores);
                             }
+
+			    "add_document" => {
+				add_document(origin, &mut last, &mut current, vars, cache, anon_stack)?;
+			    }
+
+			    "produce_base" => {
+				produce_base_cmd(origin, &mut last, &mut current, vars, cache, anon_stack)?;
+			    }
 
                             _ => {
                                 return Err(ErrorKind::InvalidInput.into());

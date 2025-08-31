@@ -19,7 +19,7 @@ pub fn var(
     vars: &HashMap<String, Vec<u8>>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<(), std::io::Error> {
-    let arg: String = get_word(origin, last, current)?;
+    let arg: String = get_word_or_literal(origin, last, current)?;
 
     let vari: Vec<u8> = match vars.get(&arg) {
         Some(vec) => vec.clone(),

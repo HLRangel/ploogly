@@ -17,3 +17,5 @@ pub mod truncate;
 pub mod unset;
 pub mod var;
 pub mod iter_dir;
+pub mod add_document;
+pub mod produce_base;

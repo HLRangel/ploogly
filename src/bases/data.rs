@@ -4,9 +4,10 @@ use crate::md2html::*;
 use crate::interpreter_facilities::get_data_to_end;
 
 use std::collections::HashMap;
-use std::fs::{exists, metadata, Metadata, File};
+use std::fs::{exists, metadata, create_dir, Metadata, File};
 use std::hash::{DefaultHasher, Hash, Hasher};
-use std::io::{ErrorKind, Read};
+use std::io::{ErrorKind, Read, Write};
+use serde::{Serialize, Deserialize};
 
 /* NOTA BENE!
 
@@ -36,62 +37,44 @@ The iterator should, eventually, allow access only to docdata and the
 key-value pair...
  */
 
+#[derive(Serialize, Deserialize)]
 enum Context {
     Absent,
     Exists(Vec<(String, Vec<u8>)>)
 }
 
+#[derive(Serialize, Deserialize)]
 struct ProdInfo {
     oglen:  u64,
     data:   Vec<u8>,
     ctx:    Context
 }
 
+#[derive(Serialize, Deserialize)]
 enum BaseData {
     Abstract,
     Produced(ProdInfo)
 }
 
+#[derive(Serialize, Deserialize)]
 struct BaseEntry {
     id: u64,
     path: String,
     data: BaseData
 }
 
-struct Base {
+#[derive(Serialize, Deserialize)]
+pub struct Base {
+    name: String,
     tallest: u64,
     bases: Vec<BaseEntry>
 }
 
-/*Base binary format:
-ENTRIESNO ENTRY...
-
-ENTRY: ID PATH HASDATA [DATA]
-
-DATA: OFLEN DATASZ HASCTX [CTX]
-
-CTX: CTXNO DCTX...
-
-DCTX: CSTR_NAME CONTENT_SZ CONTENT
- */
-
-/*
-fn base_to_binvec(base: &Base) -> Result<Vec<u8>, std::io::Error> {
-    let mut result: Vec<u8> = Vec::new();
-    result.append(base.tallest.to);
-    
-    for entry in base {
-
-	
+impl Base {
+    pub fn to_json(&self) -> Result<Vec<u8>, std::io::Error> {
+	Ok(serde_json::to_vec(self)?)
     }
-
-    Ok(result)
 }
-
-
-fn binvec_to_base(binvec: &[u8]) -> Base {
-
-}*/
 
 // Return elements from a which do not exist in b
 fn disjunct_tuplevec<T: PartialEq + Clone, U: PartialEq + Clone>(
@@ -117,6 +100,37 @@ fn disjunct_tuplevec<T: PartialEq + Clone, U: PartialEq + Clone>(
     toret
 }
 
+fn exists_tuplevec<T: PartialEq, U: PartialEq>(
+    a: &Vec<(T, U)>,
+    n1: T,
+    n2: U
+) -> (bool, bool) {
+    let mut exists_t: bool = false;
+    let mut exists_u: bool = false;
+    
+    for tuple in a {
+	if n1 == tuple.0 {
+	    exists_t = true;
+	}
+
+	if n2 == tuple.1 {
+	    exists_u = true;
+	}
+    }
+
+    (exists_t, exists_u)
+}
+
+fn has_path(bvec: &Vec<BaseEntry>, path: &str) -> bool {
+    for entry in bvec {
+	if entry.path == path {
+	    return true;
+	}
+    }
+
+    false
+}
+
 fn varmap_to_tuple(
     vars: &HashMap<String, Vec<u8>>
 ) -> Result<Vec<(String, Vec<u8>)>, std::io::Error> {
@@ -129,7 +143,7 @@ fn varmap_to_tuple(
     Ok(res)
 }
 
-fn produce_base(
+pub fn produce_base(
     base: &mut Base,
     cache: &mut HashMap<String, DocData>,
     vars: &mut HashMap<String, Vec<u8>>,
@@ -175,7 +189,7 @@ fn produce_base(
 		    base.bases[i].data = BaseData::Produced(ProdInfo {
 			oglen: file_len,
 			data: result,
-			ctx: Context::Absent
+			ctx: Context::Exists(md_ctx)
 		    });
 		} else {
 		    // Treat as plaintext
@@ -195,24 +209,61 @@ fn produce_base(
     Ok(())
 }
 
-fn base_add(base: &mut Base, path: &str) -> Result<(), std::io::Error> {
+
+pub fn base_add(base: &mut Base, path: &str) -> Result<(), std::io::Error> {
     if exists(path)? {
         let mdata: Metadata = metadata(path)?;
-
+	
         if !mdata.is_dir() {
-            base.bases.push(
-                BaseEntry {
-                    id: base.tallest,
-                    path: path.to_string(),
-                    data: BaseData::Abstract
-                }
-            );
+	    if !has_path(&base.bases, path) {
+		base.bases.push(
+                    BaseEntry {
+			id: base.tallest,
+			path: path.to_string(),
+			data: BaseData::Abstract
+                    }
+		);
 
-	    base.tallest += 1;
+		base.tallest += 1;
+	    }
         } else {
             return Err(ErrorKind::InvalidInput.into());
         }
     }
+
+    Ok(())
+}
+
+pub fn open_base(name: &str) -> Result<Base, std::io::Error> {
+    let basepath: String = format!("./plooglybases/{}", name);
+
+    if !exists("./plooglybases")? {
+	create_dir("./plooglybases")?;
+    }
+    
+    if exists(&basepath)? {
+	let mut jsondata: String = String::new();
+	File::open(&basepath)?.read_to_string(&mut jsondata)?;
+
+	let basedata: Base = serde_json::from_str(&jsondata)?; 
+
+	return Ok(basedata);
+    } else {
+	return Ok(Base {name: name.to_string(),
+			tallest: 0,
+			bases: Vec::new()});
+    }
+}
+
+pub fn save_base(base: &Base) -> Result<(), std::io::Error> {
+    let basepath: String = format!("./plooglybases/{}", base.name);
+    let tosave: Vec<u8> = base.to_json()?;
+
+    if !exists("./plooglybases")? {
+	create_dir("./plooglybases")?;
+    }
+    
+    File::create(&basepath)?.write_all(&tosave)?;
 
     Ok(())
 }

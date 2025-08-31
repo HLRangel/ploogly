@@ -338,6 +338,18 @@ pub fn get_worl_produce(
     Ok(result)
 }
 
+pub fn get_worl_produce_st(
+    origin: &[u8],
+    current: &mut usize,
+    last: &mut usize,
+    vars: &mut HashMap<String, Vec<u8>>,
+    cache: &mut HashMap<String, DocData>,
+    anon_stack: &mut Vec<Vec<u8>>,
+) -> Result<String, std::io::Error> {
+  Ok(String::from_utf8(get_worl_produce(origin, current, last, vars, cache, anon_stack)?).unwrap())
+}
+
+
 pub fn get_separated_arguments(
     origin: &[u8],
     last: &mut usize,
