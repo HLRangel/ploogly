@@ -76,6 +76,11 @@ impl Base {
     }
 }
 
+pub enum BasePresence {
+    Present(Base),
+    Absent
+}
+
 // Return elements from a which do not exist in b
 fn disjunct_tuplevec<T: PartialEq + Clone, U: PartialEq + Clone>(
     a: &Vec<(T, U)>, b: &Vec<(T, U)>
@@ -253,6 +258,23 @@ pub fn open_base(name: &str) -> Result<Base, std::io::Error> {
 			tallest: 0,
 			bases: Vec::new()});
     }
+}
+
+pub fn open_base_vec(name: &str) -> Result<Vec<u8>, std::io::Error> {
+    let basepath: String = format!("./plooglybases/{}", name);
+
+    if !exists("./plooglybases")? {
+	create_dir("./plooglybases")?;
+    }
+    
+    if exists(&basepath)? {
+	let mut jsondata: Vec<u8> = Vec::new();
+	File::open(&basepath)?.read_to_end(&mut jsondata)?;
+
+	return Ok(jsondata);
+    }
+    
+    Err(ErrorKind::InvalidFilename.into())
 }
 
 pub fn save_base(base: &Base) -> Result<(), std::io::Error> {

@@ -22,9 +22,13 @@ use crate::commands::var::*;
 use crate::commands::iter_dir::*;
 use crate::commands::add_document::*;
 use crate::commands::produce_base::*;
+use crate::commands::load_base::*;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
+
+/* Some obvious issues here... particularly the inconsistencies
+between passing the result vec pointer and copying + appending*/
 
 pub fn produce(
     origin: &[u8],
@@ -165,6 +169,10 @@ pub fn produce(
 
 			    "produce_base" => {
 				produce_base_cmd(origin, &mut last, &mut current, vars, cache, anon_stack)?;
+			    }
+
+			    "load_base" => {
+				load_base(&mut result, origin, &mut last, &mut current)?;
 			    }
 
                             _ => {
