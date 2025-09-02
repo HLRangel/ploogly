@@ -202,6 +202,7 @@ pub fn quote_literal(
 ) -> Result<String, std::io::Error> {
     *last = *current;
 
+    //fix quote HERE!!
     while !is_eof(origin, *current) && origin[*current] != b'"' {
         match origin[*current] {
             b'\\' => {
@@ -242,6 +243,7 @@ pub fn get_word_or_literal(
     } else {
 	get_word(origin, last, current)
     }
+    
 }
 
 pub fn is_char_n(origin: &[u8], val: usize, n: u8) -> bool {
