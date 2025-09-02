@@ -202,7 +202,6 @@ pub fn quote_literal(
 ) -> Result<String, std::io::Error> {
     *last = *current;
 
-    //fix quote HERE!!
     while !is_eof(origin, *current) && origin[*current] != b'"' {
         match origin[*current] {
             b'\\' => {
@@ -227,6 +226,18 @@ pub fn quote_literal(
         .expect("Error on utf-8 conversion!"))
 }
 
+pub fn command_literal(
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize
+) -> Result<String, std::io::Error> {
+    *last = *current;
+
+    match_twobrackets(origin, current);
+
+    Ok(String::from_utf8(origin[(*last - 2)..*current].to_vec()).unwrap())
+}
+
 pub fn get_word_or_literal(
     origin: &[u8],
     last: &mut usize,
@@ -240,6 +251,9 @@ pub fn get_word_or_literal(
     } else if origin[*current] == b'\'' {
         *current += 1;
 	single_quote_literal(origin, last, current)
+    } else if is_n_chars(origin, *current, b'{', 2) {
+	*current += 2;
+	command_literal(origin, last, current)
     } else {
 	get_word(origin, last, current)
     }
@@ -324,6 +338,8 @@ pub fn is_html_comment_end(origin: &[u8], current: usize) -> bool {
     is_n_chars(origin, current, b'-', 2) && is_char_n(origin, current + 2, b'>')
 }
 
+// subquoting is, of course, stupid... we need to support
+// double-brackets.
 pub fn get_worl_produce(
     origin: &[u8],
     current: &mut usize,
