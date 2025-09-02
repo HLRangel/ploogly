@@ -23,6 +23,7 @@ use crate::commands::iter_dir::*;
 use crate::commands::add_document::*;
 use crate::commands::produce_base::*;
 use crate::commands::load_base::*;
+use crate::commands::cutbase_extension::*;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
@@ -173,6 +174,10 @@ pub fn produce(
 
 			    "load_base" => {
 				load_base(&mut result, origin, &mut last, &mut current)?;
+			    }
+
+			    "cutbase_extension" => {
+				cutbase_extension(origin, &mut result, &mut current, &mut last, vars, cache, anon_stack)?;
 			    }
 
                             _ => {

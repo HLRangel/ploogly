@@ -20,3 +20,4 @@ pub mod iter_dir;
 pub mod add_document;
 pub mod produce_base;
 pub mod load_base;
+pub mod cutbase_extension;

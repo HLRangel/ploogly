@@ -260,6 +260,16 @@ pub fn open_base(name: &str) -> Result<Base, std::io::Error> {
     }
 }
 
+pub fn base_cut_extension(base: &mut Base, ext: &str) {
+    base.bases.retain(|value|
+		      value.path.ends_with(&format!(".{}", ext)));
+}
+
+pub fn base_cut_extension_inv(base: &mut Base, ext: &str) {
+    base.bases.retain(|value|
+		      !value.path.ends_with(&format!(".{}", ext)));
+}
+
 pub fn open_base_vec(name: &str) -> Result<Vec<u8>, std::io::Error> {
     let basepath: String = format!("./plooglybases/{}", name);
 
@@ -288,4 +298,10 @@ pub fn save_base(base: &Base) -> Result<(), std::io::Error> {
     File::create(&basepath)?.write_all(&tosave)?;
 
     Ok(())
+}
+
+pub fn base_from_json(json: &[u8]) -> Result<Base, std::io::Error> {
+    let toret: Base = serde_json::from_slice(&json)?;
+
+    Ok(toret)
 }
