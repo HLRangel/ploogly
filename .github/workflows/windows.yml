@@ -16,12 +16,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
+    - name: Ploogly Release Build - Windows
+      run: cargo build --release --verbose
     - name: Run tests
       run: cargo test --verbose
     - name: Upload release artifact
       uses: actions/upload-artifact@v4
       with:
         name: ploogly-windows
-        path: target/${{ matrix.BUILD_TARGET }}/ploogly.exe
+        path: target/release/ploogly.exe
