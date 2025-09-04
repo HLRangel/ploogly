@@ -24,4 +24,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ploogly-windows
-        path: target/${{ matrix.BUILD_TARGET }}/ploogly-windows
+        path: target/${{ matrix.BUILD_TARGET }}/ploogly.exe
