@@ -37,33 +37,33 @@ The iterator should, eventually, allow access only to docdata and the
 key-value pair...
  */
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 enum Context {
     Absent,
     Exists(Vec<(String, Vec<u8>)>)
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 struct ProdInfo {
     oglen:  u64,
     data:   Vec<u8>,
     ctx:    Context
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 enum BaseData {
     Abstract,
     Produced(ProdInfo)
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 struct BaseEntry {
     id: u64,
     path: String,
     data: BaseData
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Base {
     name: String,
     tallest: u64,
@@ -268,6 +268,22 @@ pub fn base_cut_extension(base: &mut Base, ext: &str) {
 pub fn base_cut_extension_inv(base: &mut Base, ext: &str) {
     base.bases.retain(|value|
 		      !value.path.ends_with(&format!(".{}", ext)));
+}
+
+pub fn base_sort_by_key(base: &mut Base, ext: &str) -> Option<std::io::Error> {
+    let mut refskey: Vec<(&Vec<u8>, &BaseEntry)> = Vec::new();
+    
+    for tbase in base.clone().bases { //try to remove this clone here.
+	let ctx = match(match tbase.data {
+	    BaseData::Abstract => return Some(ErrorKind::NotFound.into()),
+	    BaseData::Produced(bdata) => bdata
+	}).ctx {
+	    Context::Absent => return Some(ErrorKind::NotFound.into()),
+	    Context::Exists(tctx) => tctx
+	}.iter().find(|tuple| tuple.0 == ext);
+    }
+
+    None
 }
 
 pub fn open_base_vec(name: &str) -> Result<Vec<u8>, std::io::Error> {

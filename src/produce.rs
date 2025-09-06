@@ -24,6 +24,7 @@ use crate::commands::add_document::*;
 use crate::commands::produce_base::*;
 use crate::commands::load_base::*;
 use crate::commands::cutbase_extension::*;
+use crate::commands::sortbase_by_key::*;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
