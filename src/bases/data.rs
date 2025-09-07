@@ -271,17 +271,34 @@ pub fn base_cut_extension_inv(base: &mut Base, ext: &str) {
 }
 
 pub fn base_sort_by_key(base: &mut Base, ext: &str) -> Option<std::io::Error> {
-    let mut refskey: Vec<(&Vec<u8>, &BaseEntry)> = Vec::new();
+    let mut foundkeys: Vec<(&Vec<u8>, &BaseEntry)> = Vec::new();
+    let mut rejectkeys: Vec<&BaseEntry> = Vec::new();
     
-    for tbase in base.clone().bases { //try to remove this clone here.
-	let ctx = match(match tbase.data {
+    for tbase in &mut base.bases {
+	let pinfo: &ProdInfo = match &tbase.data {
 	    BaseData::Abstract => return Some(ErrorKind::NotFound.into()),
 	    BaseData::Produced(bdata) => bdata
-	}).ctx {
+	};
+
+	let ctx: &Vec<(String, Vec<u8>)> = match &pinfo.ctx {
 	    Context::Absent => return Some(ErrorKind::NotFound.into()),
 	    Context::Exists(tctx) => tctx
-	}.iter().find(|tuple| tuple.0 == ext);
+	};
+
+	let pairopt: Option<&(String, Vec<u8>)> = ctx.iter().find(|tuple| tuple.0 == ext);
+
+	match pairopt {
+	    None => {
+		rejectkeys.push(tbase);
+	    },
+	    
+	    Some(tuple) => {
+		foundkeys.push((&tuple.1, tbase));
+	    }
+	}
     }
+    
+    // do stuff!
 
     None
 }
