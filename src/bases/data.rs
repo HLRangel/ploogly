@@ -8,6 +8,7 @@ use std::fs::{exists, metadata, create_dir, Metadata, File};
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::io::{ErrorKind, Read, Write};
 use serde::{Serialize, Deserialize};
+use serde_json::map::OccupiedEntry;
 
 /* NOTA BENE!
 
@@ -57,7 +58,7 @@ enum BaseData {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-struct BaseEntry {
+pub struct BaseEntry {
     id: u64,
     path: String,
     data: BaseData
@@ -67,7 +68,7 @@ struct BaseEntry {
 pub struct Base {
     name: String,
     tallest: u64,
-    bases: Vec<BaseEntry>
+    pub bases: Vec<BaseEntry>
 }
 
 impl Base {
@@ -270,20 +271,28 @@ pub fn base_cut_extension_inv(base: &mut Base, ext: &str) {
 		      !value.path.ends_with(&format!(".{}", ext)));
 }
 
-pub fn base_sort_by_key(base: &mut Base, ext: &str) -> Option<std::io::Error> {
+pub fn ctx_from_entry(
+    entry: &BaseEntry
+) -> Result<&Vec<(String, Vec<u8>)>, std::io::Error>{
+    let pinfo: &ProdInfo = match &entry.data {
+	BaseData::Abstract => return Err(ErrorKind::NotFound.into()),
+	BaseData::Produced(bdata) => bdata
+    };
+
+    let ctx: &Vec<(String, Vec<u8>)> = match &pinfo.ctx {
+	Context::Absent => return Err(ErrorKind::NotFound.into()),
+	Context::Exists(tctx) => tctx
+    };
+
+    Ok(ctx)
+}
+
+pub fn base_sort_by_key(base: &mut Base, ext: &str) -> Result<(), std::io::Error> {
     let mut foundkeys: Vec<(&Vec<u8>, &BaseEntry)> = Vec::new();
     let mut rejectkeys: Vec<&BaseEntry> = Vec::new();
     
     for tbase in &mut base.bases {
-	let pinfo: &ProdInfo = match &tbase.data {
-	    BaseData::Abstract => return Some(ErrorKind::NotFound.into()),
-	    BaseData::Produced(bdata) => bdata
-	};
-
-	let ctx: &Vec<(String, Vec<u8>)> = match &pinfo.ctx {
-	    Context::Absent => return Some(ErrorKind::NotFound.into()),
-	    Context::Exists(tctx) => tctx
-	};
+	let ctx: &Vec<(String, Vec<u8>)> = ctx_from_entry(tbase)?;
 
 	let pairopt: Option<&(String, Vec<u8>)> = ctx.iter().find(|tuple| tuple.0 == ext);
 
@@ -312,7 +321,29 @@ pub fn base_sort_by_key(base: &mut Base, ext: &str) -> Option<std::io::Error> {
 
     base.bases = new_basee;
     
-    None
+    Ok(())
+}
+
+pub fn entry_into_hashmap(
+    entry: &BaseEntry
+) -> Result<HashMap<String, Vec<u8>>, std::io::Error> {
+    let ctx: &Vec<(String, Vec<u8>)> = ctx_from_entry(entry)?;
+    let mut toret: HashMap<String, Vec<u8>> = HashMap::new();
+    
+    for ictx in ctx {
+	toret.insert(ictx.0.clone(), ictx.1.clone());
+    }
+
+    Ok(toret)
+}
+
+pub fn entry_produced(
+    entry: &BaseEntry
+) -> Result<Vec<u8>, std::io::Error> {
+    Ok(match &entry.data {
+	BaseData::Abstract => return Err(ErrorKind::NotFound.into()),
+	BaseData::Produced(data) => data.data.clone()
+    })
 }
 
 pub fn open_base_vec(name: &str) -> Result<Vec<u8>, std::io::Error> {

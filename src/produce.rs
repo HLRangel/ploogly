@@ -25,6 +25,7 @@ use crate::commands::produce_base::*;
 use crate::commands::load_base::*;
 use crate::commands::cutbase_extension::*;
 use crate::commands::sortbase_by_key::*;
+use crate::commands::iter_base::*;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
@@ -183,6 +184,10 @@ pub fn produce(
 
 			    "sortbase_by_key" => {
 				sortbase_by_key(origin, &mut result, &mut current, &mut last, vars, cache, anon_stack)?;
+			    }
+
+			    "iter_base" => {
+				iter_base(origin, &mut result, &mut last, &mut current, cache, vars, anon_stack)?;
 			    }
 
                             _ => {
