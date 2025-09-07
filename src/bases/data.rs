@@ -297,9 +297,21 @@ pub fn base_sort_by_key(base: &mut Base, ext: &str) -> Option<std::io::Error> {
 	    }
 	}
     }
-    
-    // do stuff!
 
+    foundkeys.sort_by_key(|tuple| String::from_utf8(tuple.0.clone()).unwrap());
+
+    let mut new_basee: Vec<BaseEntry> = Vec::new();
+
+    for found in foundkeys {
+	new_basee.push(found.1.clone());
+    }
+
+    for excl in rejectkeys {
+	new_basee.push(excl.clone());
+    }
+
+    base.bases = new_basee;
+    
     None
 }
 

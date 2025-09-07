@@ -26,7 +26,7 @@ pub fn sortbase_by_key(
 	let ext: String = get_word_or_literal(origin, last, current)?;
         let mut base: Base = base_from_json(&get_worl_produce(origin, current, last, vars, cache, anon_stack)?)?;
 
-	base_cut_extension(&mut base, &ext);
+	base_sort_by_key(&mut base, &ext);
 
 	result.append(&mut base.to_json()?);
     }

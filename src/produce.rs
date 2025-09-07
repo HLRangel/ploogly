@@ -181,6 +181,10 @@ pub fn produce(
 				cutbase_extension(origin, &mut result, &mut current, &mut last, vars, cache, anon_stack)?;
 			    }
 
+			    "sortbase_by_key" => {
+				sortbase_by_key(origin, &mut result, &mut current, &mut last, vars, cache, anon_stack)?;
+			    }
+
                             _ => {
                                 return Err(ErrorKind::InvalidInput.into());
                             }
