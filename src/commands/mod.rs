@@ -23,3 +23,4 @@ pub mod load_base;
 pub mod cutbase_extension;
 pub mod sortbase_by_key;
 pub mod iter_base;
+pub mod gen_doc;

@@ -26,6 +26,7 @@ use crate::commands::load_base::*;
 use crate::commands::cutbase_extension::*;
 use crate::commands::sortbase_by_key::*;
 use crate::commands::iter_base::*;
+use crate::commands::gen_doc::*;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
@@ -188,6 +189,10 @@ pub fn produce(
 
 			    "iter_base" => {
 				iter_base(origin, &mut result, &mut last, &mut current, cache, vars, anon_stack)?;
+			    }
+
+			    "gen_doc_from_template" => {
+				gen_doc_from_template(origin, &mut last, &mut current, cache, vars, anon_stack)?;
 			    }
 
                             _ => {

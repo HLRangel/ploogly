@@ -8,22 +8,11 @@
 
 use crate::file::create_file_from_str;
 use crate::interpreter_facilities::*;
+use crate::misc::path_as_relative;
+
 use std::fs::{create_dir_all, exists};
 use std::path::PathBuf;
 use std::{collections::HashMap, io::ErrorKind};
-
-fn path_as_relative(mut path: String) -> PathBuf {
-    let mut predir: PathBuf = PathBuf::new();
-    predir.push("./out/site");
-
-    if path.starts_with("/") {
-        path.remove(0);
-    }
-
-    predir.push(path);
-
-    predir
-}
 
 pub fn redir(
     origin: &[u8],
