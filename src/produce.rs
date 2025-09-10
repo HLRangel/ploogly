@@ -11,8 +11,6 @@ use crate::interpreter_facilities::*;
 
 use crate::commands::if_n_def::*;
 use crate::commands::include::*;
-use crate::commands::list_doc::*;
-use crate::commands::produce_from::*;
 use crate::commands::redir::*;
 use crate::commands::set::*;
 use crate::commands::template::*;
@@ -54,30 +52,6 @@ pub fn produce(
 
                     if !is_eof(origin, current) {
                         match command.as_str() {
-                            "produce_from" => {
-                                let mut toput: Vec<u8> = produce_from(
-                                    origin,
-                                    &mut last,
-                                    &mut current,
-                                    vars,
-                                    cache,
-                                    anon_stack,
-                                )?;
-                                result.append(&mut toput);
-                            }
-
-                            "list_doc" => {
-                                let mut docap: Vec<u8> = list_doc(
-                                    origin,
-                                    &mut last,
-                                    &mut current,
-                                    cache,
-                                    vars,
-                                    anon_stack,
-                                )?;
-                                result.append(&mut docap);
-                            }
-
                             "include" => {
                                 include(
                                     &mut result,

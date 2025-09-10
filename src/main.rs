@@ -104,14 +104,15 @@ fn main() -> Result<(), u8> {
             "licenses" => {
                 println!(
                     "Ploogly (c) 2025 HLRangel and Contributors. All Rights Reserved.\n\
-                    Released under MPL 2.0 OR MIT (Under certain preconditions).\n\
-                    Check LICENSE and RH-LICENSE-EXCEPT file for details.\n\
+                    Released under the Unified Interdependence License.\n\
                     ---\n\n\
                     Ploogly uses the following third-party packages:\n\
                     markdown-rs Copyright (c) 2022 Titus Wormer <tituswormer@gmail.com>\n\
                     tiny_http Copyright (c) 2014-2019 The tiny-http contributors\n\
+		    serde Copyright (c) The Serde contributors\n\
                     mlua Copyright (c) 2019-2021 A. Orlenko, Copyright (c) 2017 rlua\n\n\
-                    markdown-rs, mlua, and tiny_http are under the \"MIT License\":\n\
+                    markdown-rs, mlua, serde, and tiny_http are under the\n\
+		    \"MIT License\":\n\
                     \n\
                     Permission is hereby granted, free of charge, to any person obtaining\n\
                     a copy of this software and associated documentation files (the\n\
@@ -137,7 +138,7 @@ fn main() -> Result<(), u8> {
             _ => {
                 eprintln!(
                     "Unrecognized argument! Available arguments:\n\
-                new, new_bare, build, serve, licenses"
+                new, build, serve, licenses"
                 );
                 return Err(1);
             }
