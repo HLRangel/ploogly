@@ -6,10 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-use crate::docdata::*;
 use crate::interpreter_facilities::*;
-use crate::produce::*;
-use crate::bases::data::*;
 use crate::produce::produce;
 use crate::misc::path_as_relative;
 
@@ -23,7 +20,6 @@ use std::io::Read;
 pub fn generate(
     template: &str,
     respath: &str,
-    cache: &mut HashMap<String, DocData>,
     vars: &mut HashMap<String, Vec<u8>>,
     anon_stack: &mut Vec<Vec<u8>>
 ) -> Result<Vec<u8>, std::io::Error> {
@@ -34,21 +30,20 @@ pub fn generate(
 
     File::open(&template)?.read_to_end(&mut togen)?;
 
-    Ok(produce(&togen, &mut new_vars, cache, anon_stack)?)
+    Ok(produce(&togen, &mut new_vars, anon_stack)?)
 }
 
 pub fn gen_doc_from_template(
     origin: &[u8],
     last: &mut usize,
     current: &mut usize,
-    cache: &mut HashMap<String, DocData>,
     vars: &mut HashMap<String, Vec<u8>>,
     anon_stack: &mut Vec<Vec<u8>>
 ) -> Result<(), std::io::Error> {
-    let path: String = String::from_utf8(get_worl_produce(origin, current, last, vars, cache, anon_stack)?).unwrap();
-    let templatepath: String = String::from_utf8(get_worl_produce(origin, current, last, vars, cache, anon_stack)?).unwrap();
+    let path: String = String::from_utf8(get_worl_produce(origin, current, last, vars, anon_stack)?).unwrap();
+    let templatepath: String = String::from_utf8(get_worl_produce(origin, current, last, vars, anon_stack)?).unwrap();
 
-    let mut res: Vec<u8> = generate(&templatepath, &path, cache, vars, anon_stack)?;
+    let mut res: Vec<u8> = generate(&templatepath, &path, vars, anon_stack)?;
 
     let pathbuf: PathBuf = path_as_relative(path);
 

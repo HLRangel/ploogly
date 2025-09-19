@@ -8,7 +8,6 @@
 
 // Shared word-wrangling facilities
 
-use crate::docdata::*;
 use crate::produce::*;
 
 use std::collections::HashMap;
@@ -345,13 +344,12 @@ pub fn get_worl_produce(
     current: &mut usize,
     last: &mut usize,
     vars: &mut HashMap<String, Vec<u8>>,
-    cache: &mut HashMap<String, DocData>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<Vec<u8>, std::io::Error> {
     let mut varsc: HashMap<String, Vec<u8>> = vars.clone();
     let toprod: String = get_word_or_literal(origin, last, current)?;
 
-    let result: Vec<u8> = produce(toprod.as_bytes(), &mut varsc, cache, anon_stack)?;
+    let result: Vec<u8> = produce(toprod.as_bytes(), &mut varsc, anon_stack)?;
 
     Ok(result)
 }
@@ -361,10 +359,9 @@ pub fn get_worl_produce_st(
     current: &mut usize,
     last: &mut usize,
     vars: &mut HashMap<String, Vec<u8>>,
-    cache: &mut HashMap<String, DocData>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<String, std::io::Error> {
-  Ok(String::from_utf8(get_worl_produce(origin, current, last, vars, cache, anon_stack)?).unwrap())
+  Ok(String::from_utf8(get_worl_produce(origin, current, last, vars,  anon_stack)?).unwrap())
 }
 
 

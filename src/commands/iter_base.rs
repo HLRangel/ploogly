@@ -6,7 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-use crate::docdata::*;
 use crate::interpreter_facilities::*;
 use crate::produce::*;
 use crate::bases::data::*;
@@ -17,7 +16,6 @@ pub fn iterant(
     result: &mut Vec<u8>,
     base: &Base,
     toiter: &[u8],
-    cache: &mut HashMap<String, DocData>,
     vars: &mut HashMap<String, Vec<u8>>,
     anon_stack: &mut Vec<Vec<u8>>
 ) -> Result<(), std::io::Error> {
@@ -29,7 +27,7 @@ pub fn iterant(
 
 	new_vars.insert("docdata".to_string(), entry_produced(entry)?);
 
-	result.append(&mut produce(toiter, &mut new_vars, cache, anon_stack)?);
+	result.append(&mut produce(toiter, &mut new_vars, anon_stack)?);
     }
 
     Ok(())
@@ -40,15 +38,14 @@ pub fn iter_base(
     result: &mut Vec<u8>,
     last: &mut usize,
     current: &mut usize,
-    cache: &mut HashMap<String, DocData>,
     vars: &mut HashMap<String, Vec<u8>>,
     anon_stack: &mut Vec<Vec<u8>>
 ) -> Result<(), std::io::Error> {
-    let mut base: Base = base_from_json(&get_worl_produce(origin, current, last, vars, cache, anon_stack)?)?;
+    let mut base: Base = base_from_json(&get_worl_produce(origin, current, last, vars, anon_stack)?)?;
     
     let inner: Vec<u8> = get_inner(origin, last, current)?;
 
-    iterant(result, &mut base, &inner, cache, vars, anon_stack)?;
+    iterant(result, &mut base, &inner, vars, anon_stack)?;
 
     Ok(())
 }

@@ -6,7 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-use crate::docdata::*;
 use crate::interpreter_facilities::to_normalized_vec;
 use crate::md2html::*;
 use crate::produce::*;
@@ -20,7 +19,6 @@ pub fn file_produce_and_append(
     toap: &mut File,
     result: &mut Vec<u8>,
     vars: &HashMap<String, Vec<u8>>,
-    cache: &mut HashMap<String, DocData>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<(), std::io::Error> {
     let mut fdata: Vec<u8> = Vec::new();
@@ -30,7 +28,7 @@ pub fn file_produce_and_append(
 
     let mut hmap: HashMap<String, Vec<u8>> = vars.clone();
 
-    result.append(&mut produce(&fdata, &mut hmap, cache, anon_stack)?);
+    result.append(&mut produce(&fdata, &mut hmap, anon_stack)?);
 
     return Ok(());
 }
@@ -57,7 +55,6 @@ pub fn create_file_from_str(path: &str, text: &str) {
 pub fn inclusion_into_result(
     result: &mut Vec<u8>,
     vars: &HashMap<String, Vec<u8>>,
-    cache: &mut HashMap<String, DocData>,
     anon_stack: &mut Vec<Vec<u8>>,
     arg: &str,
 ) -> Result<(), std::io::Error> {
@@ -65,13 +62,13 @@ pub fn inclusion_into_result(
         if exists(format!("./templates/{arg}"))? {
             let mut fhandle: File = File::open(format!("./templates/{arg}"))?;
 
-            file_produce_and_append(&mut fhandle, result, vars, cache, anon_stack)?;
+            file_produce_and_append(&mut fhandle, result, vars, anon_stack)?;
 
             return Ok(());
         } else if exists(&arg)? {
             let mut fhandle: File = File::open(&arg)?;
 
-            file_produce_and_append(&mut fhandle, result, vars, cache, anon_stack)?;
+            file_produce_and_append(&mut fhandle, result, vars, anon_stack)?;
 
             return Ok(());
         }

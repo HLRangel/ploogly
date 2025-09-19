@@ -9,17 +9,15 @@ use std::collections::HashMap;
 
 use crate::interpreter_facilities::*;
 use crate::bases::data::*;
-use crate::docdata::*;
 
 pub fn add_document(
     origin: &[u8],
     last: &mut usize,
     current: &mut usize,
     vars: &mut HashMap<String, Vec<u8>>,
-    cache: &mut HashMap<String, DocData>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<(), std::io::Error> {
-    let docpath: String = get_worl_produce_st(origin, current, last, vars, cache, anon_stack)?;    
+    let docpath: String = get_worl_produce_st(origin, current, last, vars, anon_stack)?;    
     let basename: String = get_word_or_literal(origin, last, current)?;
     
     let mut thisbase: Base = open_base(&basename)?;

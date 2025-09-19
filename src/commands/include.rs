@@ -6,7 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-use crate::docdata::DocData;
 use crate::file::*;
 use crate::interpreter_facilities::*;
 
@@ -18,12 +17,11 @@ pub fn include(
     last: &mut usize,
     current: &mut usize,
     vars: &HashMap<String, Vec<u8>>,
-    cache: &mut HashMap<String, DocData>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<(), std::io::Error> {
     let arg: String = get_word_or_literal(origin, last, current)?;
 
-    inclusion_into_result(result, vars, cache, anon_stack, &arg)?;
+    inclusion_into_result(result, vars, anon_stack, &arg)?;
 
     return Ok(());
 }

@@ -6,7 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-use crate::docdata::*;
 use crate::interpreter_facilities::*;
 use crate::produce::*;
 use crate::var_imports::*;
@@ -19,7 +18,6 @@ fn template(
     path: &str,
     root_path: &str,
     name: &str,
-    cache: &mut HashMap<String, DocData>,
 ) -> Result<(), std::io::Error> {
     // Open file for reading
     let file_path: String = format!("{path}/{name}");
@@ -58,7 +56,7 @@ fn template(
 
         let mut stack: Vec<Vec<u8>> = Vec::new();
 
-        result = match produce(&data, &mut vars, cache, &mut stack) {
+        result = match produce(&data, &mut vars, &mut stack) {
             Err(err) => {
                 eprintln!("Build failed! Error first provoked on file {file_path}");
                 return Err(err);
@@ -80,7 +78,6 @@ fn template(
 fn navigate_files(
     path: &str,
     root_path: &str,
-    cache: &mut HashMap<String, DocData>,
 ) -> Result<(), std::io::Error> {
     let pathdata: Metadata = metadata(path)?;
 
@@ -91,9 +88,9 @@ fn navigate_files(
 
             let data: Metadata = metadata(&fpath)?;
             if data.is_dir() {
-                navigate_files(&fpath, root_path, cache)?;
+                navigate_files(&fpath, root_path)?;
             } else if data.is_file() {
-                template(path, root_path, &name, cache)?;
+                template(path, root_path, &name)?;
             }
         }
 
@@ -105,12 +102,10 @@ fn navigate_files(
 
 pub fn build() -> Result<(), std::io::Error> {
     if exists("./project.ssg")? {
-	let mut doccache: HashMap<String, DocData> = HashMap::new();
-
         remove_dir_all("./out")?;
         create_dir("./out")?;
 
-        navigate_files("./site", "./site", &mut doccache)?;
+        navigate_files("./site", "./site")?;
     } else {
         return Err(ErrorKind::AlreadyExists.into());
     }

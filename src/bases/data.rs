@@ -1,14 +1,11 @@
-use crate::docdata::DocData;
 use crate::file::inclusion_into_result;
 use crate::md2html::*;
 use crate::interpreter_facilities::get_data_to_end;
 
 use std::collections::HashMap;
 use std::fs::{exists, metadata, create_dir, Metadata, File};
-use std::hash::{DefaultHasher, Hash, Hasher};
 use std::io::{ErrorKind, Read, Write};
 use serde::{Serialize, Deserialize};
-use serde_json::map::OccupiedEntry;
 
 /* NOTA BENE!
 
@@ -151,7 +148,6 @@ fn varmap_to_tuple(
 
 pub fn produce_base(
     base: &mut Base,
-    cache: &mut HashMap<String, DocData>,
     vars: &mut HashMap<String, Vec<u8>>,
     anon_stack: &mut Vec<Vec<u8>>
 ) -> Result<(), std::io::Error> {
@@ -171,7 +167,7 @@ pub fn produce_base(
 		if base.bases[i].path.ends_with(".html") || base.bases[i].path.ends_with(".htm") {
 		    let vars_pre: Vec<(String, Vec<u8>)> = varmap_to_tuple(vars)?;
 		    
-		    inclusion_into_result(&mut result, vars, cache, anon_stack, &base.bases[i].path)?;
+		    inclusion_into_result(&mut result, vars, anon_stack, &base.bases[i].path)?;
 		    
 		    let to_store: Vec<(String, Vec<u8>)> = disjunct_tuplevec(&varmap_to_tuple(vars)?, &vars_pre);
 

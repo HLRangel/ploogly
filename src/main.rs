@@ -21,7 +21,6 @@
 mod bases;
 mod build;
 mod commands;
-mod docdata;
 mod file;
 mod interpreter_facilities;
 mod md2html;

@@ -7,11 +7,9 @@
 */
 
 use crate::interpreter_facilities::*;
-use crate::docdata::*;
 use crate::bases::data::*;
 
 use std::collections::HashMap;
-use std::io::ErrorKind;
 
 pub fn sortbase_by_key(
     origin: &[u8],
@@ -19,12 +17,11 @@ pub fn sortbase_by_key(
     current: &mut usize,
     last: &mut usize,
     vars: &mut HashMap<String, Vec<u8>>,
-    cache: &mut HashMap<String, DocData>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<(), std::io::Error> {
     if !is_eof(origin, *current) {
 	let ext: String = get_word_or_literal(origin, last, current)?;
-        let mut base: Base = base_from_json(&get_worl_produce(origin, current, last, vars, cache, anon_stack)?)?;
+        let mut base: Base = base_from_json(&get_worl_produce(origin, current, last, vars, anon_stack)?)?;
 
 	base_sort_by_key(&mut base, &ext)?;
 

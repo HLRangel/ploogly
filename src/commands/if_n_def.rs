@@ -8,7 +8,6 @@
 
 use std::collections::HashMap;
 
-use crate::docdata::*;
 use crate::interpreter_facilities::{get_inner, get_word_or_literal};
 use crate::produce::*;
 
@@ -17,7 +16,6 @@ pub fn ifdef(
     current: &mut usize,
     last: &mut usize,
     vars: &mut HashMap<String, Vec<u8>>,
-    cache: &mut HashMap<String, DocData>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<Vec<u8>, std::io::Error> {
     let arg: String = get_word_or_literal(origin, last, current)?;
@@ -25,7 +23,7 @@ pub fn ifdef(
 
     if vars.contains_key(&arg) {
         //let mut new: HashMap<String, Vec<u8>> = vars.clone();
-        return Ok(produce(&inner, vars, cache, anon_stack)?.to_vec());
+        return Ok(produce(&inner, vars, anon_stack)?.to_vec());
     }
 
     return Ok(Vec::new());
@@ -36,7 +34,6 @@ pub fn ifndef(
     current: &mut usize,
     last: &mut usize,
     vars: &mut HashMap<String, Vec<u8>>,
-    cache: &mut HashMap<String, DocData>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<Vec<u8>, std::io::Error> {
     let arg: String = get_word_or_literal(origin, last, current)?;
@@ -44,7 +41,7 @@ pub fn ifndef(
 
     if !vars.contains_key(&arg) {
         //let mut new: HashMap<String, Vec<u8>> = vars.clone();
-        return Ok(produce(&inner, vars, cache, anon_stack)?.to_vec());
+        return Ok(produce(&inner, vars, anon_stack)?.to_vec());
     }
 
     return Ok(Vec::new());

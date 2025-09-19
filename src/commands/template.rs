@@ -6,7 +6,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-use crate::docdata::*;
 use crate::file::inclusion_into_result;
 use crate::interpreter_facilities::*;
 use crate::var_imports::*;
@@ -34,7 +33,6 @@ pub fn template(
     last: &mut usize,
     current: &mut usize,
     vars: &HashMap<String, Vec<u8>>,
-    cache: &mut HashMap<String, DocData>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<Vec<u8>, std::io::Error> {
     let filename: String = get_word_or_literal(origin, last, current)?;
@@ -46,7 +44,7 @@ pub fn template(
 
     interpret_var_or_stack_push(&vec, &mut thisvars, &mut thisstack)?;
 
-    inclusion_into_result(&mut result, &thisvars, cache, &mut thisstack, &filename)?;
+    inclusion_into_result(&mut result, &thisvars, &mut thisstack, &filename)?;
 
     return Ok(result);
 }
