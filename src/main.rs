@@ -40,7 +40,7 @@ fn main() -> Result<(), u8> {
     let args: Vec<String> = args().collect();
 
     println!(
-        "Ploogly distribution, ver. {}\n\n\
+        "Ploogly Distribution, Internal Rolling (cargo ver. {})\n\n\
             This build of Ploogly contains third-party software,\n\
             which may be subject to different licensing terms.\n\
             run Ploogly with the \"licenses\" argument for details.\n\n",
@@ -103,7 +103,7 @@ fn main() -> Result<(), u8> {
             "licenses" => {
                 println!(
                     "Ploogly (c) 2025 HLRangel and Contributors. All Rights Reserved.\n\
-                    Released under the Unified Interdependence License.\n\
+                     This is a version of Ploogly for PRIVATE USE in testing.\n\
                     ---\n\n\
                     Ploogly uses the following third-party packages:\n\
                     markdown-rs Copyright (c) 2022 Titus Wormer <tituswormer@gmail.com>\n\
