@@ -16,10 +16,10 @@ pub fn include(
     origin: &[u8],
     last: &mut usize,
     current: &mut usize,
-    vars: &HashMap<String, Vec<u8>>,
+    vars: &mut HashMap<String, Vec<u8>>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<(), std::io::Error> {
-    let arg: String = get_word_or_literal(origin, last, current)?;
+    let arg: String = get_worl_produce_st(origin, current, last, vars, anon_stack)?;
 
     inclusion_into_result(result, vars, anon_stack, &arg)?;
 
