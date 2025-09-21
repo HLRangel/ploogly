@@ -10,7 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  build-windows:
 
     runs-on: windows-latest
 
@@ -25,3 +25,19 @@ jobs:
       with:
         name: ploogly-windows
         path: target/release/ploogly.exe
+
+  build-linux:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Ploogly Release Build - Linux-GNU
+      run: cargo build --release --verbose
+    - name: Run tests
+      run: cargo test --verbose
+    - name: Upload release artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ploogly-linux-gnu
+        path: target/release/ploogly
