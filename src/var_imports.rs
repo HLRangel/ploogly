@@ -47,14 +47,14 @@ pub fn read_text_arg(origin: &[u8], current: &mut usize) -> Vec<u8> {
     vecmap
 }
 
-// Import variables with primitive yaml-like format, <name>: <var> <nl / |>
+// Import variables with primitive yaml-like format, <name># <var> <nl / |>
 pub fn import_variables(origin: &[u8]) -> Result<HashMap<String, Vec<u8>>, std::io::Error> {
     let mut vars: HashMap<String, Vec<u8>> = HashMap::new();
     let mut current: usize = 0;
 
     while current < origin.len() {
         match origin[current] {
-            b':' => {
+            b'#' => {
                 let varname: String = highlight_word_ltr(origin, current);
                 current += 1;
 
