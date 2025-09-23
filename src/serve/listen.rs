@@ -21,7 +21,10 @@ use tiny_http::{Method, Response, Server};
 
 fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io::Error> {
     let path: PathBuf = canonicalize(PathBuf::from_str(dir).unwrap())?;
-    let server: Server = Server::http(format!("127.0.0.1:{port}")).unwrap();
+    let server: Server = match Server::http(format!("127.0.0.1:{port}")) {
+	Ok(server) => server,
+	Err(_) => return Err(ErrorKind::AddrInUse.into()) 
+    };
 
     for mut request in server.incoming_requests() {
         match request.method() {
