@@ -25,6 +25,8 @@ use crate::commands::sortbase_by_key::*;
 use crate::commands::iter_base::*;
 use crate::commands::gen_doc::*;
 use crate::commands::reverse_base_order::*;
+use crate::commands::ltrim::*;
+use crate::commands::rtrim::*;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
@@ -165,6 +167,14 @@ pub fn produce(
 
 			    "gen_doc_from_template" => {
 				gen_doc_from_template(origin, &mut last, &mut current, vars, anon_stack)?;
+			    }
+
+			    "ltrim" => {
+				ltrim(origin, &mut result, &mut current, &mut last, vars, anon_stack)?;
+			    }
+
+			    "rtrim" => {
+				rtrim(origin, &mut result, &mut current, &mut last, vars, anon_stack)?;
 			    }
 
                             _ => {
