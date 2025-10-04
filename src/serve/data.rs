@@ -13,6 +13,7 @@ use tiny_http::Method;
 pub enum ReqMethod {
     Post,
     Get,
+    Static,
     Unsupported,
 }
 
@@ -32,6 +33,7 @@ impl fmt::Display for ReqMethod {
         match self {
             ReqMethod::Get => write!(f, "GET"),
             ReqMethod::Post => write!(f, "POST"),
+	    ReqMethod::Static => write!(f, "STATIC"),
             ReqMethod::Unsupported => write!(f, "Unsupported"),
         }
     }

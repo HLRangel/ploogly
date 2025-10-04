@@ -25,3 +25,4 @@ pub mod gen_doc;
 pub mod reverse_base_order;
 pub mod ltrim;
 pub mod rtrim;
+pub mod call;

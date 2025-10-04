@@ -27,6 +27,7 @@ use crate::commands::gen_doc::*;
 use crate::commands::reverse_base_order::*;
 use crate::commands::ltrim::*;
 use crate::commands::rtrim::*;
+use crate::commands::call::*;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
@@ -175,6 +176,10 @@ pub fn produce(
 
 			    "rtrim" => {
 				rtrim(origin, &mut result, &mut current, &mut last, vars, anon_stack)?;
+			    }
+
+			    "call" => {
+				call(origin, &mut current, &mut last, vars, anon_stack)?;
 			    }
 
                             _ => {

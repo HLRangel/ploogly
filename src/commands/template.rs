@@ -32,11 +32,11 @@ pub fn template(
     origin: &[u8],
     last: &mut usize,
     current: &mut usize,
-    vars: &HashMap<String, Vec<u8>>,
+    vars: &mut HashMap<String, Vec<u8>>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<Vec<u8>, std::io::Error> {
     let filename: String = get_word_or_literal(origin, last, current)?;
-    let vec: Vec<Vec<u8>> = get_separated_arguments(origin, last, current)?;
+    let vec: Vec<Vec<u8>> = get_separated_arguments(origin, last, current, vars, anon_stack)?;
 
     let mut thisstack: Vec<Vec<u8>> = anon_stack.clone();
     let mut thisvars: HashMap<String, Vec<u8>> = vars.clone();

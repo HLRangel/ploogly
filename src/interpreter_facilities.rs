@@ -361,14 +361,15 @@ pub fn get_worl_produce_st(
     vars: &mut HashMap<String, Vec<u8>>,
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<String, std::io::Error> {
-  Ok(String::from_utf8(get_worl_produce(origin, current, last, vars,  anon_stack)?).unwrap())
+  Ok(String::from_utf8(get_worl_produce(origin, current, last, vars, anon_stack)?).unwrap())
 }
-
 
 pub fn get_separated_arguments(
     origin: &[u8],
     last: &mut usize,
     current: &mut usize,
+    vars: &mut HashMap<String, Vec<u8>>,
+    anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<Vec<Vec<u8>>, std::io::Error> {
     if !is_eof(origin, *current) {
         to_next_notwp(origin, current);
@@ -377,8 +378,8 @@ pub fn get_separated_arguments(
 
         *last = *current;
         while !is_twobracket_r(origin, *current) {
-            let arg: String = get_word_or_literal(origin, last, current)?;
-            argvc.push(arg.as_bytes().to_vec());
+            let arg: Vec<u8> = get_worl_produce(origin, current, last, vars, anon_stack)?;
+            argvc.push(arg);
             to_next_notwp(origin, current);
         }
 

@@ -40,11 +40,12 @@ fn main() -> Result<(), u8> {
     let args: Vec<String> = args().collect();
 
     println!(
-        "Ploogly Distribution, Internal Rolling (cargo ver. {})\n\n\
+        "Ploogly Distribution/Rolling (Version {}, nominally {})\n\n\
             This build of Ploogly contains third-party software,\n\
             which may be subject to different licensing terms.\n\
             run Ploogly with the \"licenses\" argument for details.\n\n",
-        env!("CARGO_PKG_VERSION")
+	env!("PLOOGLY_COMMIT_ID"),
+	env!("CARGO_PKG_VERSION")
     );
     if args.len() >= 2 {
         match args[1].as_str() {
