@@ -11,7 +11,10 @@ pub fn ifdef(
     anon_stack: &mut Vec<Vec<u8>>,
 ) -> Result<Vec<u8>, std::io::Error> {
     let arg: String = get_word_or_literal(origin, last, current)?;
+    println!("{arg}");
     let inner: Vec<u8> = get_inner(origin, last, current)?;
+
+    println!("{arg}: {}", String::from_utf8(inner.clone()).unwrap());
 
     if vars.contains_key(&arg) {
         //let mut new: HashMap<String, Vec<u8>> = vars.clone();

@@ -244,7 +244,7 @@ pub fn get_word_or_literal(
 	*current += 2;
 	command_literal(origin, last, current)
     } else {
-	get_word(origin, last, current)
+	return get_word(origin, last, current);
     }
     
 }
