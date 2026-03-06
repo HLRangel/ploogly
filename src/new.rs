@@ -11,8 +11,8 @@ fn new_project() -> Result<(), std::io::Error> {
 
         create_file_from_str(
             "./project.ssg",
-            "name: Example Website\n\
-url: https://example.com/",
+            "name# Example Website\n\
+url# https://example.com/",
         );
     } else {
         set_current_dir("..")?;

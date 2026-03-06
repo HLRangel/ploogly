@@ -2,7 +2,7 @@ use crate::build::*;
 use crate::serve::data::*;
 use crate::serve::lua_gen::*;
 
-use std::fs::{File, canonicalize, exists};
+use std::fs::{File, canonicalize, exists, Metadata, metadata};
 use std::io::ErrorKind;
 use std::io::stdin;
 use std::string::*;
@@ -34,7 +34,9 @@ fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io
 
                 if path_to.ends_with("/") {
                     path_to.push_str("index.html");
-                }
+                } else if metadata(path_to.as_str())?.is_dir() {
+		    path_to.push_str("/index.html");
+		}
 
                 let mut info: ReqInfo = getreqinfo(
                     &path_to,
