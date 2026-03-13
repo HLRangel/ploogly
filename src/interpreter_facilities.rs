@@ -383,18 +383,19 @@ pub fn get_separated_arguments(
 /// Parameters are separated by whitespace and may be quoted strings,
 /// command literals `{{...}}`, or plain words.
 /// Returns a vector of raw byte vectors for each parameter.
-pub fn read_parameters_until_newline(
+pub fn read_params_until_nl(
     origin: &[u8],
     last: &mut usize,
     current: &mut usize,
 ) -> Result<Vec<Vec<u8>>, std::io::Error> {
     let mut params = Vec::new();
-    // skip leading whitespace
+    
     to_next_notwp(origin, current);
+
     while !is_eof(origin, *current) && origin[*current] != b'\n' {
         let token = get_word_or_literal(origin, last, current)?;
         params.push(token.into_bytes());
-        // skip whitespace before next token
+        
         to_next_notwp(origin, current);
     }
     Ok(params)
