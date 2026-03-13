@@ -20,6 +20,7 @@ use crate::commands::reverse_base_order::*;
 use crate::commands::ltrim::*;
 use crate::commands::rtrim::*;
 use crate::commands::call::*;
+use crate::commands::create_macro::*;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
@@ -172,6 +173,10 @@ pub fn produce(
 
 			    "call" => {
 				call(origin, &mut current, &mut last, vars, anon_stack)?;
+			    }
+
+			    "macro" => {
+				create_macro(origin, &mut current, &mut last, vars, anon_stack)?;
 			    }
 
                             _ => {

@@ -18,3 +18,4 @@ pub mod reverse_base_order;
 pub mod ltrim;
 pub mod rtrim;
 pub mod call;
+pub mod create_macro;

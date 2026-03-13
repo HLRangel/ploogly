@@ -95,7 +95,7 @@ fn main() -> Result<(), u8> {
 
             "licenses" => {
                 println!(
-                    "Ploogly (c) 2025 HLRangel and Contributors. All Rights Reserved.\n\
+                    "Ploogly (c) 2025-2026 HLRangel and Contributors. All Rights Reserved.\n\
                      This is a version of Ploogly for PRIVATE USE in testing.\n\
                     ---\n\n\
                     Ploogly uses the following third-party packages:\n\
