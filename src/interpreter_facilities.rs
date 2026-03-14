@@ -379,10 +379,6 @@ pub fn get_separated_arguments(
     Err(ErrorKind::InvalidInput.into())
 }
 
-/// Reads an unlimited sequence of parameters until the first newline.
-/// Parameters are separated by whitespace and may be quoted strings,
-/// command literals `{{...}}`, or plain words.
-/// Returns a vector of raw byte vectors for each parameter.
 pub fn read_params_until_nl(
     origin: &[u8],
     last: &mut usize,

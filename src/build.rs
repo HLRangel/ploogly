@@ -94,9 +94,16 @@ fn navigate_files(
 
 pub fn build() -> Result<(), std::io::Error> {
     if exists("./project.ssg")? {
+	// Clean up out
         remove_dir_all("./out")?;
         create_dir("./out")?;
 
+	// Create version file
+	File::create(".ploogly-version")?.write_all(
+	    env!("CARGO_PKG_VERSION").as_bytes()
+	)?;
+
+	// Do build stuff
         navigate_files("./site", "./site")?;
     } else {
         return Err(ErrorKind::AlreadyExists.into());
