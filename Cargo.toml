@@ -4,6 +4,8 @@ version = "0.5.0"
 edition = "2024"
 
 [dependencies]
+actix-files = "0.6.10"
+actix-web = "4.14.0"
 markdown = "1.0.0"
 mlua = {version = "0.10.5", features = ["lua54", "vendored"]}
 serde = {version ="1.0.219", features = ["derive"]}
