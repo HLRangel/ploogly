@@ -74,11 +74,6 @@ impl Base {
     }
 }
 
-pub enum BasePresence {
-    Present(Base),
-    Absent
-}
-
 // Return elements from a which do not exist in b
 fn disjunct_tuplevec<T: PartialEq + Clone, U: PartialEq + Clone>(
     a: &Vec<(T, U)>, b: &Vec<(T, U)>
@@ -101,27 +96,6 @@ fn disjunct_tuplevec<T: PartialEq + Clone, U: PartialEq + Clone>(
     }
 
     toret
-}
-
-fn exists_tuplevec<T: PartialEq, U: PartialEq>(
-    a: &Vec<(T, U)>,
-    n1: T,
-    n2: U
-) -> (bool, bool) {
-    let mut exists_t: bool = false;
-    let mut exists_u: bool = false;
-    
-    for tuple in a {
-	if n1 == tuple.0 {
-	    exists_t = true;
-	}
-
-	if n2 == tuple.1 {
-	    exists_u = true;
-	}
-    }
-
-    (exists_t, exists_u)
 }
 
 fn has_path(bvec: &Vec<BaseEntry>, path: &str) -> bool {
@@ -260,11 +234,6 @@ pub fn open_base(name: &str) -> Result<Base, std::io::Error> {
 pub fn base_cut_extension(base: &mut Base, ext: &str) {
     base.bases.retain(|value|
 		      value.path.ends_with(&format!(".{}", ext)));
-}
-
-pub fn base_cut_extension_inv(base: &mut Base, ext: &str) {
-    base.bases.retain(|value|
-		      !value.path.ends_with(&format!(".{}", ext)));
 }
 
 pub fn ctx_from_entry(
