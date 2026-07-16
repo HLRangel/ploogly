@@ -51,8 +51,3 @@ Commands are invoked inside `{{command args}} ... }}`.
 | `rtrim` | `rtrim string count` | Right‑trim `count` characters |
 | `call` | `call ...` | Print evaluated arguments (debug) |
 | `macro` | `macro name params` | Define macro (debug only) |
-
-## Configuration (`project.ssg`)
-
-Uses a `key# value` syntax, one per line. Example:
-
