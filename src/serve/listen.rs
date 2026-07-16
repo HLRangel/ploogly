@@ -1,7 +1,6 @@
 use crate::build::*;
-use actix_web::{web, App, HttpServer};
+use actix_web::{App, HttpServer};
 use actix_files::Files;
-use actix_web::rt;
 use std::fs::{canonicalize, exists};
 use std::io::{ErrorKind, stdin};
 use std::path::PathBuf;
@@ -28,7 +27,7 @@ fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io
         actix_web::rt::spawn(async move {
             loop {
                 if *comm_clone.lock().unwrap() == 1 {
-                    handle.stop(true);
+                    handle.stop(true).await;
                     break;
                 }
                 actix_web::rt::time::sleep(Duration::from_millis(500)).await;
