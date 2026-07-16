@@ -19,3 +19,4 @@ pub mod ltrim;
 pub mod rtrim;
 pub mod call;
 pub mod create_macro;
+pub mod append_data_to_file;

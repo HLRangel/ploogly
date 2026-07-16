@@ -21,6 +21,7 @@ use crate::commands::ltrim::*;
 use crate::commands::rtrim::*;
 use crate::commands::call::*;
 use crate::commands::create_macro::*;
+use crate::commands::append_data_to_file::append_data_to_file;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
@@ -177,6 +178,10 @@ pub fn produce(
 
 			    "macro" => {
 				create_macro(origin, &mut current, &mut last, vars, anon_stack)?;
+			    }
+
+			    "append_data_to_file" => {
+				append_data_to_file(origin, &mut last, &mut current, vars, anon_stack)?;
 			    }
 
                             _ => {
