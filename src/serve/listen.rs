@@ -20,20 +20,24 @@ fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io
     })
     .bind(format!("127.0.0.1:{}", port))?
     .run();
-
     let handle = server.handle();
-    let comm_clone = Arc::clone(&comm);
-    rt::spawn(async move {
-        loop {
-            if *comm_clone.lock().unwrap() == 1 {
-                handle.stop(true);
-                break;
-            }
-            rt::time::sleep(Duration::from_millis(500)).await;
-        }
-    });
 
-    rt::System::new("http-server").block_on(server)?;
+    let comm_clone = Arc::clone(&comm);
+
+    let future = async move {
+        actix_web::rt::spawn(async move {
+            loop {
+                if *comm_clone.lock().unwrap() == 1 {
+                    handle.stop(true);
+                    break;
+                }
+                actix_web::rt::time::sleep(Duration::from_millis(500)).await;
+            }
+        });
+        server.await
+    };
+
+    actix_web::rt::System::new().block_on(future)?;
     Ok(())
 }
 
