@@ -1,91 +1,40 @@
 use crate::build::*;
-use crate::serve::data::*;
-use crate::serve::lua_gen::*;
-
-use std::fs::{File, canonicalize, exists, Metadata, metadata};
-use std::io::ErrorKind;
-use std::io::stdin;
-use std::string::*;
+use actix_web::{web, App, HttpServer};
+use actix_files::Files;
+use actix_web::rt;
+use std::fs::{canonicalize, exists};
+use std::io::{ErrorKind, stdin};
+use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 use std::thread::spawn;
-use std::{path::PathBuf, str::FromStr};
-use tiny_http::{Method, Response, Server};
+use std::time::Duration;
 
 fn listen_dir(port: &str, dir: &str, comm: Arc<Mutex<u8>>) -> Result<(), std::io::Error> {
     let path: PathBuf = canonicalize(PathBuf::from_str(dir).unwrap())?;
-    let server: Server = match Server::http(format!("127.0.0.1:{port}")) {
-	Ok(server) => server,
-	Err(_) => return Err(ErrorKind::AddrInUse.into()) 
-    };
 
-    for mut request in server.incoming_requests() {
-        match request.method() {
-            Method::Get | Method::Post => {
-                let mut req: String = request.url().to_string();
-                req = match req.as_str() {
-                    "/" => "/index.html".to_string(),
+    let server = HttpServer::new(move || {
+        let static_path = path.clone();
+        App::new()
+            .service(Files::new("/", static_path).index_file("index.html"))
+    })
+    .bind(format!("127.0.0.1:{}", port))?
+    .run();
 
-                    _ => req,
-                };
-
-                let mut path_to: String =
-                    String::from_str(path.join(req.strip_prefix("/").unwrap()).to_str().unwrap())
-                        .unwrap();
-
-                if path_to.ends_with("/") {
-                    path_to.push_str("index.html");
-                } else if metadata(path_to.as_str())?.is_dir() {
-		    path_to.push_str("/index.html");
-		}
-
-                let mut info: ReqInfo = getreqinfo(
-                    &path_to,
-                    TinyHTTPMethod(request.method().clone()).to_reqmethod(),
-                );
-                path_to = info.data.path.clone();
-
-                if *request.method() == Method::Post {
-                    let mut body: String = String::new();
-                    request.as_reader().read_to_string(&mut body)?;
-
-                    let mut entries: Vec<Entry> = url_query_to_entries(&body);
-                    if !info.entries.is_none() {
-                        let mut ne: Vec<Entry> = info.entries.clone().unwrap();
-                        ne.append(&mut entries);
-
-                        info.entries = Some(ne);
-                    } else {
-                        info.entries = Some(entries);
-                    }
-                }
-
-                if exists(&path_to)? {
-                    // lua functionality here
-                    // reqinfo, etc.
-                    if path_to.ends_with(".lua") {
-                        let response = Response::from_data(pluacgi(&path_to, &info).unwrap());
-                        request.respond(response)?;
-                    } else {
-                        let response = Response::from_file(File::open(path_to)?);
-                        request.respond(response)?;
-                    }
-                } else {
-                    let response = Response::from_string("404!");
-                    request.respond(response)?;
-                }
-
-                if *comm.lock().unwrap() == 1 {
-                    return Ok(());
-                }
+    let handle = server.handle();
+    let comm_clone = Arc::clone(&comm);
+    rt::spawn(async move {
+        loop {
+            if *comm_clone.lock().unwrap() == 1 {
+                handle.stop(true);
+                break;
             }
+            rt::time::sleep(Duration::from_millis(500)).await;
+        }
+    });
 
-            _ => {
-                eprintln!("Came across an unsupported request type. Ignored.");
-            }
-        };
-    }
-
-    return Ok(());
+    rt::System::new("http-server").block_on(server)?;
+    Ok(())
 }
 
 pub fn serve_control(port: String) -> Result<(), std::io::Error> {
@@ -117,13 +66,11 @@ pub fn serve_control(port: String) -> Result<(), std::io::Error> {
 
                 b'Q' | b'q' => {
                     *sp.lock().unwrap() = 1;
-
                     return Ok(());
                 }
 
                 b'L' | b'l' => {
                     *sp.lock().unwrap() = 1;
-
                     ended = true;
                 }
 
@@ -139,5 +86,5 @@ pub fn serve_control(port: String) -> Result<(), std::io::Error> {
         return Err(ErrorKind::InvalidInput.into());
     }
 
-    return Ok(());
+    Ok(())
 }
