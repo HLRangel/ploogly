@@ -1,4 +1,4 @@
-use crate::commands::COMMANDS;
+use crate::commands::command_table::COMMANDS;
 
 /// Prints a list of all template commands and their expected arguments.
 pub fn print_commands() {

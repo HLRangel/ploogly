@@ -1,5 +1,5 @@
 use crate::interpreter_facilities::*;
-use crate::commands::COMMANDS;
+use crate::commands::command_table::COMMANDS;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
