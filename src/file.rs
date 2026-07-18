@@ -79,6 +79,20 @@ pub fn inclusion_into_result(
 
             return Ok(());
         }
+    } else {
+        // generic file include: read, normalize, and append as-is
+        if exists(&arg)? {
+            let mut fhandle: File = File::open(&arg)?;
+
+            let mut fdata: Vec<u8> = Vec::new();
+            fhandle.read_to_end(&mut fdata)?;
+
+            fdata = to_normalized_vec(&fdata);
+
+            result.append(&mut fdata);
+
+            return Ok(());
+        }
     }
 
     return Err(ErrorKind::NotSeekable.into());

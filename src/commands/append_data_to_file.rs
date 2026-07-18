@@ -21,6 +21,9 @@ pub fn append_data_to_file(
     let filename: String = get_worl_produce_st(origin, current, last, vars, anon_stack)?;
     let inner: Vec<u8> = get_inner(origin, last, current)?;
 
+    // Normalize CR-LF to LF before processing
+    let inner = to_normalized_vec(&inner);
+
     let processed: Vec<u8> = produce(&inner, vars, anon_stack)?;
 
     let out_path: PathBuf = path_as_relative(filename);
