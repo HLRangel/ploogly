@@ -8,24 +8,42 @@ pub fn get_frontmatter_block(
     last: &mut usize,
     current: &mut usize,
 ) -> Result<Vec<u8>, std::io::Error> {
-    if is_n_chars_before_n(origin, *current, b'-', 3, b'\n') {
-        *current += 4;
-
-        *last = *current;
-
-        while !is_eof(origin, *current) {
-            if origin[*current] == b'\n'
-                && is_n_chars_before_n(origin, *current + 1, b'-', 3, b'\n')
-            {
-                *current += 4;
-
-                return Ok(origin[*last..*current - 4].to_vec());
-            }
-
-            *current += 1;
-        }
-
+    // Check for opening `---` possibly followed by spaces and a newline
+    if *current + 3 > origin.len() || &origin[*current..*current + 3] != b"---" {
         return Err(ErrorKind::InvalidInput.into());
+    }
+    let mut pos = *current + 3;
+    // skip trailing spaces before newline
+    while pos < origin.len() && origin[pos] == b' ' {
+        pos += 1;
+    }
+    if pos >= origin.len() || origin[pos] != b'\n' {
+        return Err(ErrorKind::InvalidInput.into());
+    }
+    // move past the newline
+    pos += 1;
+    *current = pos;
+    *last = pos;
+
+    // scan for closing `---` line
+    while !is_eof(origin, *current) {
+        if origin[*current] == b'\n' {
+            let after_nl = *current + 1;
+            if after_nl + 3 <= origin.len() && &origin[after_nl..after_nl + 3] == b"---" {
+                let mut end = after_nl + 3;
+                // trailing spaces after the three dashes are allowed before the final newline
+                while end < origin.len() && origin[end] == b' ' {
+                    end += 1;
+                }
+                if end < origin.len() && origin[end] == b'\n' {
+                    // found closing line
+                    let content = origin[*last..*current].to_vec();
+                    *current = end + 1; // move past closing newline
+                    return Ok(content);
+                }
+            }
+        }
+        *current += 1;
     }
 
     Err(ErrorKind::InvalidInput.into())
