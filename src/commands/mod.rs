@@ -18,7 +18,6 @@ pub mod reverse_base_order;
 pub mod ltrim;
 pub mod rtrim;
 pub mod call;
-pub mod create_macro;
-pub mod use_macro;
+pub mod macros;
 pub mod append_data_to_file;
 pub mod command_table;

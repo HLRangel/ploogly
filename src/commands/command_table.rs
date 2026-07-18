@@ -204,7 +204,7 @@ pub static COMMANDS: &[CommandDescriptor] = &[
         signature: "<name> <params>",
         description: "Define macro (debug only)",
         handler: |origin, _result, last, current, vars, anon_stack| {
-            crate::commands::create_macro::create_macro(origin, current, last, vars, anon_stack)?;
+            crate::commands::macros::create_macro(origin, current, last, vars, anon_stack)?;
             Ok(())
         },
     },
