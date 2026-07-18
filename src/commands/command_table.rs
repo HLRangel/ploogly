@@ -6,7 +6,7 @@ pub struct CommandDescriptor {
     pub name: &'static str,
     pub signature: &'static str,
     pub description: &'static str,
-    
+
     /// The function that implements the command.
     /// It receives the same arguments as the current dispatch match arms.
     pub handler: fn(
@@ -86,7 +86,7 @@ pub static COMMANDS: &[CommandDescriptor] = &[
     CommandDescriptor {
         name: "truncate",
         signature: "<text> <length>",
-        description: "Truncate string to given length, add ...",
+        description: "Truncate string to given length and commute with \"...\"",
         handler: |origin, result, last, current, vars, anon_stack| {
             let mut tores = crate::commands::truncate::truncate(origin, last, current, vars, anon_stack)?;
             result.append(&mut tores);
@@ -138,7 +138,7 @@ pub static COMMANDS: &[CommandDescriptor] = &[
     CommandDescriptor {
         name: "cutbase_extension",
         signature: "<ext> <base>",
-        description: "Remove entries not ending with .ext",
+        description: "Remove entries not ending with .<ext>",
         handler: |origin, result, last, current, vars, anon_stack| {
             crate::commands::cutbase_extension::cutbase_extension(origin, result, current, last, vars, anon_stack)
         },
@@ -178,7 +178,7 @@ pub static COMMANDS: &[CommandDescriptor] = &[
     CommandDescriptor {
         name: "ltrim",
         signature: "<string> <count>",
-        description: "Left-trim count characters",
+        description: "Left-trim <count> characters",
         handler: |origin, result, last, current, vars, anon_stack| {
             crate::commands::ltrim::ltrim(origin, result, current, last, vars, anon_stack)
         },
@@ -186,7 +186,7 @@ pub static COMMANDS: &[CommandDescriptor] = &[
     CommandDescriptor {
         name: "rtrim",
         signature: "<string> <count>",
-        description: "Right-trim count characters",
+        description: "Right-trim <count> characters",
         handler: |origin, result, last, current, vars, anon_stack| {
             crate::commands::rtrim::rtrim(origin, result, current, last, vars, anon_stack)
         },

@@ -129,7 +129,9 @@ fn main() -> Result<(), u8> {
             }
 
             "commands" => {
-                println!("List of all available commands: ");
+                println!("List of all available commands.\n\
+                Many of these are machine-generated. REFER TO OFFICIAL DOCUMENTATION!\n");
+
                 for cmd in COMMANDS {
                     println!("  {} {}", cmd.name, cmd.signature);
                     println!("      {}\n", cmd.description);
