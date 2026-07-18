@@ -21,5 +21,4 @@ pub mod call;
 pub mod create_macro;
 pub mod use_macro;
 pub mod append_data_to_file;
-pub mod help;
 pub mod command_table;

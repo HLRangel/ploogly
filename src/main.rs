@@ -25,6 +25,7 @@ mod misc;
 use crate::build::*;
 use crate::new::*;
 use crate::serve::listen::*;
+use crate::commands::command_table::COMMANDS;
 
 use std::env::args;
 
@@ -125,6 +126,14 @@ fn main() -> Result<(), u8> {
                     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE\n\
                     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
                 )
+            }
+
+            "commands" => {
+                println!("List of all available commands: ");
+                for cmd in COMMANDS {
+                    println!("  {} {}", cmd.name, cmd.signature);
+                    println!("      {}\n", cmd.description);
+                }
             }
 
             _ => {

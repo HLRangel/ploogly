@@ -6,6 +6,7 @@ pub struct CommandDescriptor {
     pub name: &'static str,
     pub signature: &'static str,
     pub description: &'static str,
+    
     /// The function that implements the command.
     /// It receives the same arguments as the current dispatch match arms.
     pub handler: fn(
