@@ -1,5 +1,6 @@
 use crate::interpreter_facilities::*;
 use crate::commands::command_table::COMMANDS;
+use crate::commands::CommandContext;
 
 use std::collections::HashMap;
 use std::io::ErrorKind;
@@ -25,11 +26,23 @@ pub fn produce(
                     let command: String = get_word(origin, &mut last, &mut current)?;
 
                     if !is_eof(origin, current) {
+                        let mut ctx = CommandContext {
+                            origin,
+                            current,
+                            last,
+                            vars,
+                            anon_stack,
+                            result: &mut result,
+                        };
+
                         let mut handled = false;
                         for cmd in COMMANDS {
                             if command == cmd.name {
-                                (cmd.handler)(origin, &mut result, &mut last, &mut current, vars, anon_stack)?;
+                                (cmd.handler)(&mut ctx)?;
                                 handled = true;
+                                // update local variables from context
+                                current = ctx.current;
+                                last = ctx.last;
                                 break;
                             }
                         }

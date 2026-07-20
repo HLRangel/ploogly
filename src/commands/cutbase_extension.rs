@@ -1,24 +1,14 @@
 use crate::interpreter_facilities::*;
 use crate::bases::data::*;
-
+use super::CommandContext;
 use std::collections::HashMap;
 
-pub fn cutbase_extension(
-    origin: &[u8],
-    result: &mut Vec<u8>,
-    current: &mut usize,
-    last: &mut usize,
-    vars: &mut HashMap<String, Vec<u8>>,
-    anon_stack: &mut Vec<Vec<u8>>,
-) -> Result<(), std::io::Error> {
-    if !is_eof(origin, *current) {
-	let ext: String = get_word_or_literal(origin, last, current)?;
-        let mut base: Base = base_from_json(&get_worl_produce(origin, current, last, vars, anon_stack)?)?;
-
-	base_cut_extension(&mut base, &ext);
-
-	result.append(&mut base.to_json()?);
+pub fn cutbase_extension(ctx: &mut CommandContext) -> Result<(), std::io::Error> {
+    if !is_eof(ctx.origin, ctx.current) {
+        let ext: String = get_word_or_literal(ctx.origin, &mut ctx.last, &mut ctx.current)?;
+        let mut base: Base = base_from_json(&get_worl_produce(ctx.origin, &mut ctx.current, &mut ctx.last, ctx.vars, ctx.anon_stack)?)?;
+        base_cut_extension(&mut base, &ext);
+        ctx.result.append(&mut base.to_json()?);
     }
-
-    return Ok(());
+    Ok(())
 }

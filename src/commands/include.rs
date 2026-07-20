@@ -1,19 +1,11 @@
 use crate::file::*;
 use crate::interpreter_facilities::*;
+use super::CommandContext;
 
-use std::collections::HashMap;
+pub fn include(ctx: &mut CommandContext) -> Result<(), std::io::Error> {
+    let arg: String = get_worl_produce_st(ctx.origin, &mut ctx.current, &mut ctx.last, ctx.vars, ctx.anon_stack)?;
 
-pub fn include(
-    result: &mut Vec<u8>,
-    origin: &[u8],
-    last: &mut usize,
-    current: &mut usize,
-    vars: &mut HashMap<String, Vec<u8>>,
-    anon_stack: &mut Vec<Vec<u8>>,
-) -> Result<(), std::io::Error> {
-    let arg: String = get_worl_produce_st(origin, current, last, vars, anon_stack)?;
+    inclusion_into_result(ctx.result, &*ctx.vars, ctx.anon_stack, &arg)?;
 
-    inclusion_into_result(result, vars, anon_stack, &arg)?;
-
-    return Ok(());
+    Ok(())
 }

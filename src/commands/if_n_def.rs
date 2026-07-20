@@ -1,43 +1,24 @@
 use std::collections::HashMap;
-
 use crate::interpreter_facilities::{get_inner, get_word_or_literal};
 use crate::produce::*;
+use super::CommandContext;
 
-pub fn ifdef(
-    origin: &[u8],
-    current: &mut usize,
-    last: &mut usize,
-    vars: &mut HashMap<String, Vec<u8>>,
-    anon_stack: &mut Vec<Vec<u8>>,
-) -> Result<Vec<u8>, std::io::Error> {
-    let arg: String = get_word_or_literal(origin, last, current)?;
-    println!("{arg}");
-    let inner: Vec<u8> = get_inner(origin, last, current)?;
+pub fn ifdef(ctx: &mut CommandContext) -> Result<Vec<u8>, std::io::Error> {
+    let arg: String = get_word_or_literal(ctx.origin, &mut ctx.last, &mut ctx.current)?;
+    let inner: Vec<u8> = get_inner(ctx.origin, &mut ctx.last, &mut ctx.current)?;
 
-    println!("{arg}: {}", String::from_utf8(inner.clone()).unwrap());
-
-    if vars.contains_key(&arg) {
-        //let mut new: HashMap<String, Vec<u8>> = vars.clone();
-        return Ok(produce(&inner, vars, anon_stack)?.to_vec());
+    if ctx.vars.contains_key(&arg) {
+        return Ok(produce(&inner, ctx.vars, ctx.anon_stack)?.to_vec());
     }
-
-    return Ok(Vec::new());
+    Ok(Vec::new())
 }
 
-pub fn ifndef(
-    origin: &[u8],
-    current: &mut usize,
-    last: &mut usize,
-    vars: &mut HashMap<String, Vec<u8>>,
-    anon_stack: &mut Vec<Vec<u8>>,
-) -> Result<Vec<u8>, std::io::Error> {
-    let arg: String = get_word_or_literal(origin, last, current)?;
-    let inner: Vec<u8> = get_inner(origin, last, current)?;
+pub fn ifndef(ctx: &mut CommandContext) -> Result<Vec<u8>, std::io::Error> {
+    let arg: String = get_word_or_literal(ctx.origin, &mut ctx.last, &mut ctx.current)?;
+    let inner: Vec<u8> = get_inner(ctx.origin, &mut ctx.last, &mut ctx.current)?;
 
-    if !vars.contains_key(&arg) {
-        //let mut new: HashMap<String, Vec<u8>> = vars.clone();
-        return Ok(produce(&inner, vars, anon_stack)?.to_vec());
+    if !ctx.vars.contains_key(&arg) {
+        return Ok(produce(&inner, ctx.vars, ctx.anon_stack)?.to_vec());
     }
-
-    return Ok(Vec::new());
+    Ok(Vec::new())
 }

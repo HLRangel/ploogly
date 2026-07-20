@@ -21,3 +21,16 @@ pub mod call;
 pub mod macros;
 pub mod append_data_to_file;
 pub mod command_table;
+
+use std::collections::HashMap;
+
+/// Bundles all the common mutable and immutable references
+/// that a template command needs.
+pub struct CommandContext<'a> {
+    pub origin: &'a [u8],
+    pub current: usize,
+    pub last: usize,
+    pub vars: &'a mut HashMap<String, Vec<u8>>,
+    pub anon_stack: &'a mut Vec<Vec<u8>>,
+    pub result: &'a mut Vec<u8>,
+}

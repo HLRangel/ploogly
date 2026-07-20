@@ -1,20 +1,13 @@
 use crate::interpreter_facilities::*;
-
+use super::CommandContext;
 use std::collections::HashMap;
 
-pub fn set(
-    origin: &[u8],
-    current: &mut usize,
-    last: &mut usize,
-    vars: &mut HashMap<String, Vec<u8>>,
-    anon_stack: &mut Vec<Vec<u8>>,
-) -> Result<(), std::io::Error> {
-    if !is_eof(origin, *current) {
-        let name: String = get_word(origin, last, current)?;
-        let value: Vec<u8> = get_worl_produce(origin, current, last, vars, anon_stack)?;
+pub fn set(ctx: &mut CommandContext) -> Result<(), std::io::Error> {
+    if !is_eof(ctx.origin, ctx.current) {
+        let name: String = get_word(ctx.origin, &mut ctx.last, &mut ctx.current)?;
+        let value: Vec<u8> = get_worl_produce(ctx.origin, &mut ctx.current, &mut ctx.last, ctx.vars, ctx.anon_stack)?;
 
-        vars.insert(name, value);
+        ctx.vars.insert(name, value);
     }
-
-    return Ok(());
+    Ok(())
 }
