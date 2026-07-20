@@ -1,4 +1,5 @@
 use crate::interpreter_facilities::*;
+use super::CommandContext;
 use std::{collections::HashMap, io::ErrorKind};
 
 /* How macros work in Ploogly:
@@ -47,36 +48,24 @@ fn get_macro_data(data: &[u8]) -> Result<MacroData, std::io::Error> {
 }
 
 // Just pushes inner content as a variable
-pub fn use_macro(
-    origin: &[u8],
-    current: &mut usize,
-    last: &mut usize,
-    vars: &mut HashMap<String, Vec<u8>>,
-    anon_stack: &mut Vec<Vec<u8>>,
-) -> Result<Vec<u8>, std::io::Error> {
-    let macro_name: String = get_worl_produce_st(origin, current, last, vars, anon_stack)?;
+pub fn use_macro(ctx: &mut CommandContext) -> Result<Vec<u8>, std::io::Error> {
+    let macro_name: String = get_worl_produce_st(ctx.origin, &mut ctx.current, &mut ctx.last, ctx.vars, ctx.anon_stack)?;
 
-    if vars.contains_key(&format!("__macro+{macro_name}")) {
-        let macrodata: MacroData = get_macro_data(vars.get(&format!("__macro+{macro_name}")).unwrap())?;
-        let args: Vec<Vec<u8>> = get_separated_arguments(origin, last, current, vars, anon_stack)?;
+    if ctx.vars.contains_key(&format!("__macro+{macro_name}")) {
+        let macrodata: MacroData = get_macro_data(ctx.vars.get(&format!("__macro+{macro_name}")).unwrap())?;
+        let args: Vec<Vec<u8>> = get_separated_arguments(ctx.origin, &mut ctx.last, &mut ctx.current, ctx.vars, ctx.anon_stack)?;
     
-        
+        // TODO: actual macro expansion
     }
 
     return Err(ErrorKind::InvalidData.into());
 }
 
-pub fn create_macro(
-    origin: &[u8],
-    current: &mut usize,
-    last: &mut usize,
-    vars: &mut HashMap<String, Vec<u8>>,
-    anon_stack: &mut Vec<Vec<u8>>,
-) -> Result<Vec<u8>, std::io::Error> {
-    let macro_name: String = get_worl_produce_st(origin, current, last, vars, anon_stack)?;
-    let macro_content: Vec<u8> = get_inner(origin, last, current)?;
+pub fn create_macro(ctx: &mut CommandContext) -> Result<(), std::io::Error> {
+    let macro_name: String = get_worl_produce_st(ctx.origin, &mut ctx.current, &mut ctx.last, ctx.vars, ctx.anon_stack)?;
+    let macro_content: Vec<u8> = get_inner(ctx.origin, &mut ctx.last, &mut ctx.current)?;
 
-    vars.insert(format!("__macro+{macro_name}"), macro_content);
+    ctx.vars.insert(format!("__macro+{macro_name}"), macro_content);
     
-    return Ok(Vec::new());
+    Ok(())
 }
