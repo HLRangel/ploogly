@@ -92,39 +92,11 @@ pub fn get_frontmatter_ctx(
 
 */
 
-use markdown::{
-    CompileOptions, LineEnding::LineFeed, Options, message::Message, to_html_with_options,
-};
-
 use std::io::ErrorKind;
 
 pub fn to_md(origin: &[u8]) -> Result<Vec<u8>, std::io::Error> {
-    let mut result: Vec<u8> = Vec::new();
-
-    let res: Result<String, Message> = to_html_with_options(
-        String::from_utf8(origin.to_vec()).unwrap().as_str(),
-        &Options {
-            compile: CompileOptions {
-                allow_any_img_src: true,
-                allow_dangerous_html: true,
-                allow_dangerous_protocol: true,
-                default_line_ending: LineFeed,
-                gfm_footnote_back_label: Some("To content".to_string()), // get this from project.ssg
-                ..CompileOptions::default()
-            },
-            ..Options::default()
-        },
-    );
-
-    match res {
-        Ok(res) => {
-            result.append(&mut res.as_bytes().to_vec());
-        }
-
-        Err(_) => {
-            return Err(ErrorKind::Other.into());
-        }
-    }
-
-    Ok(result)
+    let input_str = String::from_utf8(origin.to_vec())
+        .map_err(|_| ErrorKind::InvalidData)?;
+    let html = markdown::to_html(&input_str);
+    Ok(html.into_bytes())
 }
