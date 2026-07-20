@@ -57,12 +57,13 @@ pub fn use_macro(
     let macro_name: String = get_worl_produce_st(origin, current, last, vars, anon_stack)?;
 
     if vars.contains_key(&format!("__macro+{macro_name}")) {
-        // process macro here ...
+        let macrodata: MacroData = get_macro_data(vars.get(&format!("__macro+{macro_name}")).unwrap())?;
+        let args: Vec<Vec<u8>> = get_separated_arguments(origin, last, current, vars, anon_stack)?;
+    
+        
     }
 
-    // then read everything else here...
-    
-    return Ok(Vec::new());
+    return Err(ErrorKind::InvalidData.into());
 }
 
 pub fn create_macro(
