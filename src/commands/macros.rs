@@ -65,7 +65,9 @@ pub fn create_macro(ctx: &mut CommandContext) -> Result<(), std::io::Error> {
     let macro_name: String = get_worl_produce_st(ctx.origin, &mut ctx.current, &mut ctx.last, ctx.vars, ctx.anon_stack)?;
     let macro_content: Vec<u8> = get_inner(ctx.origin, &mut ctx.last, &mut ctx.current)?;
 
-    ctx.vars.insert(format!("__macro+{macro_name}"), macro_content);
+    ctx.vars.insert(format!("__macro+{macro_name}"), macro_content.clone());
+
+    debug_println!("MACRO '{}' registered", macro_name);
     
     Ok(())
 }

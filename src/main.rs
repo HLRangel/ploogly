@@ -22,6 +22,9 @@ mod serve;
 mod var_imports;
 mod misc;
 
+#[macro_use]
+mod debug;
+
 use crate::build::*;
 use crate::new::*;
 use crate::serve::listen::*;
