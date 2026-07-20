@@ -66,8 +66,6 @@ pub fn create_macro(ctx: &mut CommandContext) -> Result<(), std::io::Error> {
     let macro_content: Vec<u8> = get_inner(ctx.origin, &mut ctx.last, &mut ctx.current)?;
 
     ctx.vars.insert(format!("__macro+{macro_name}"), macro_content.clone());
-
-    println!("MACRO '{}' registered", macro_name);
     
     Ok(())
 }
