@@ -95,6 +95,7 @@ pub fn get_frontmatter_ctx(
 use markdown::{
     CompileOptions, LineEnding::LineFeed, Options, message::Message, to_html_with_options,
 };
+
 use std::io::ErrorKind;
 
 pub fn to_md(origin: &[u8]) -> Result<Vec<u8>, std::io::Error> {
