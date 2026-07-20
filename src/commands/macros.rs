@@ -67,7 +67,7 @@ pub fn create_macro(ctx: &mut CommandContext) -> Result<(), std::io::Error> {
 
     ctx.vars.insert(format!("__macro+{macro_name}"), macro_content.clone());
 
-    debug_println!("MACRO '{}' registered", macro_name);
+    println!("MACRO '{}' registered", macro_name);
     
     Ok(())
 }

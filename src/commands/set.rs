@@ -9,7 +9,7 @@ pub fn set(ctx: &mut CommandContext) -> Result<(), std::io::Error> {
 
         ctx.vars.insert(name.clone(), value.clone());
 
-        debug_println!("SET '{}' = {}", name, String::from_utf8_lossy(&value));
+        println!("SET '{}' = {}", name, String::from_utf8_lossy(&value));
     }
     Ok(())
 }
