@@ -4,7 +4,6 @@ use crate::misc::path_as_relative;
 use super::CommandContext;
 use std::fs::{create_dir_all, exists};
 use std::path::PathBuf;
-use std::collections::HashMap;
 use std::io::ErrorKind;
 
 pub fn redir(ctx: &mut CommandContext) -> Result<(), std::io::Error> {

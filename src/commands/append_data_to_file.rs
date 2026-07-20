@@ -2,7 +2,6 @@ use crate::interpreter_facilities::*;
 use crate::produce::produce;
 use crate::misc::path_as_relative;
 use super::CommandContext;
-use std::collections::HashMap;
 use std::fs::{create_dir_all, OpenOptions, exists};
 use std::io::Write;
 use std::path::PathBuf;

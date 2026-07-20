@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use crate::interpreter_facilities::{get_inner, get_word_or_literal};
 use crate::produce::*;
 use super::CommandContext;

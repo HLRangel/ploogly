@@ -1,7 +1,6 @@
 use crate::interpreter_facilities::*;
 use crate::bases::data::*;
 use super::CommandContext;
-use std::collections::HashMap;
 
 pub fn cutbase_extension(ctx: &mut CommandContext) -> Result<(), std::io::Error> {
     if !is_eof(ctx.origin, ctx.current) {

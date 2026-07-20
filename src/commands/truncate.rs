@@ -1,7 +1,6 @@
 use crate::interpreter_facilities::*;
 use crate::produce::*;
 use super::CommandContext;
-use std::collections::HashMap;
 use std::io::ErrorKind;
 
 pub fn truncate(ctx: &mut CommandContext) -> Result<Vec<u8>, std::io::Error> {

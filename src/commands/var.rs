@@ -1,6 +1,5 @@
 use crate::interpreter_facilities::*;
 use super::CommandContext;
-use std::collections::HashMap;
 use std::io::ErrorKind;
 
 pub fn var(ctx: &mut CommandContext) -> Result<(), std::io::Error> {

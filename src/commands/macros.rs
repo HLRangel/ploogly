@@ -1,6 +1,6 @@
 use crate::interpreter_facilities::*;
 use super::CommandContext;
-use std::{collections::HashMap, io::ErrorKind};
+use std::io::ErrorKind;
 
 /* How macros work in Ploogly:
     PG!M<macro name>\n<positional argument 1 name>...\nPG!E

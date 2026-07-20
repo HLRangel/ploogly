@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-use std::io::ErrorKind;
 use super::CommandContext;
 
 /// Describes a template command so it can be dispatched and documented.
