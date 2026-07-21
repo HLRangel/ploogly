@@ -1,4 +1,4 @@
-use crate::interpreter_facilities::*;
+use crate::{interpreter_facilities::*, produce::produce};
 use super::CommandContext;
 use std::io::ErrorKind;
 
@@ -60,7 +60,6 @@ fn get_macro_data(data: &[u8]) -> Result<MacroData, std::io::Error> {
     Err(ErrorKind::InvalidData.into())
 }
 
-// Just pushes inner content as a variable
 pub fn use_macro(ctx: &mut CommandContext) -> Result<Vec<u8>, std::io::Error> {
     let macro_name: String = get_worl_produce_st(ctx.origin, &mut ctx.current, &mut ctx.last, ctx.vars, ctx.anon_stack)?;
 
@@ -78,7 +77,7 @@ pub fn use_macro(ctx: &mut CommandContext) -> Result<Vec<u8>, std::io::Error> {
             }
         }
 
-        //produce here!
+        return Ok(produce(macrodata.code.as_bytes(), ctx.vars, ctx.anon_stack)?);
     }
 
     return Err(ErrorKind::InvalidData.into());

@@ -206,4 +206,27 @@ pub static COMMANDS: &[CommandDescriptor] = &[
             crate::commands::append_data_to_file::append_data_to_file(ctx)
         },
     },
+    CommandDescriptor {
+        name: "create_macro",
+        signature: "<macro_name> <argnames...> <inner>",
+        description: "Create macro of name <macro_name> with <argnames...> and\
+                    <inner> content.\n\
+                    In macros, the string #![ argname ]!# will be replaced with the\
+                    corresponding information when macro_call is used.",
+        handler: |ctx| {
+            crate::commands::macros::create_macro(ctx)
+        },
+    },
+    CommandDescriptor {
+        name: "call_macro",
+        signature: "<macro_name> <args...>",
+        description: "Use macro of name <macro_name> with <args...>\n\
+                    Replacements occur in the order they were defined.",
+        handler: |ctx| {
+            let mut tores = crate::commands::macros::use_macro(ctx)?;
+            ctx.result.append(&mut tores);
+
+            Ok(())
+        },
+    },
 ];
