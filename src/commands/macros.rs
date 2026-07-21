@@ -10,7 +10,8 @@ use std::io::ErrorKind;
 
 struct MacroData {
     name: String,
-    positions: Vec<String>
+    positions: Vec<String>,
+    code: String
 }
 
 fn get_macro_data(data: &[u8]) -> Result<MacroData, std::io::Error> {
@@ -21,7 +22,12 @@ fn get_macro_data(data: &[u8]) -> Result<MacroData, std::io::Error> {
         current += 4;
         last = current;
 
-        let mut macrodata: MacroData = MacroData { name: "null".to_string(), positions: Vec::new() };
+        let mut macrodata: MacroData = MacroData { 
+            name: "null".to_string(), 
+            positions: Vec::new(), 
+            code: String::new() 
+        };
+
         while !data[current..].starts_with(&[b'P', b'G', b'!', b'E']) {
             while data[current] != b'\n' && !is_eof(data, current) {
                 current += 1;
@@ -38,6 +44,13 @@ fn get_macro_data(data: &[u8]) -> Result<MacroData, std::io::Error> {
         if macrodata.positions.len() == 0 {
             return Err(ErrorKind::InvalidData.into())
         } else {
+            // Return an "empty macro" text if there's no terminator.
+            if is_eof(data, current) {
+                macrodata.code = "empty macro".to_string();
+            } else {
+                macrodata.code = String::from_utf8(data[current + 4..].to_vec()).unwrap();
+            }
+
             macrodata.name = macrodata.positions[0].clone();
 
             return Ok(macrodata)
@@ -52,10 +65,20 @@ pub fn use_macro(ctx: &mut CommandContext) -> Result<Vec<u8>, std::io::Error> {
     let macro_name: String = get_worl_produce_st(ctx.origin, &mut ctx.current, &mut ctx.last, ctx.vars, ctx.anon_stack)?;
 
     if ctx.vars.contains_key(&format!("__macro+{macro_name}")) {
-        let macrodata: MacroData = get_macro_data(ctx.vars.get(&format!("__macro+{macro_name}")).unwrap())?;
-        let args: Vec<Vec<u8>> = get_separated_arguments(ctx.origin, &mut ctx.last, &mut ctx.current, ctx.vars, ctx.anon_stack)?;
-    
-        // TODO: actual macro expansion
+        let mut macrodata: MacroData = get_macro_data(ctx.vars.get(&format!("__macro+{macro_name}")).unwrap())?;
+        let args: Vec<String> = get_separated_arguments_st(ctx.origin, &mut ctx.last, &mut ctx.current, ctx.vars, ctx.anon_stack)?;
+        
+        if args.len() > 1 {
+            let mut index: usize = 0;
+
+            for argument in &macrodata.positions[1..] {
+                macrodata.code = macrodata.code.replace(&format!("#![ {argument} ]!#"), &args[index]);
+            
+                index += 1;
+            }
+        }
+
+        //produce here!
     }
 
     return Err(ErrorKind::InvalidData.into());

@@ -379,6 +379,20 @@ pub fn get_separated_arguments(
     Err(ErrorKind::InvalidInput.into())
 }
 
+pub fn get_separated_arguments_st(
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize,
+    vars: &mut HashMap<String, Vec<u8>>,
+    anon_stack: &mut Vec<Vec<u8>>,
+) -> Result<Vec<String>, std::io::Error> {
+    Ok(get_separated_arguments(origin, last, current, vars, anon_stack)?
+        .into_iter()
+        .map(|v| String::from_utf8(v).unwrap())
+        .collect()
+    )
+}
+
 pub fn read_params_until_nl(
     origin: &[u8],
     last: &mut usize,
