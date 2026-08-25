@@ -141,7 +141,7 @@ fn main() -> Result<(), u8> {
             _ => {
                 eprintln!(
                     "Unrecognized argument! Available arguments:\n\
-                new, build, serve, licenses"
+                new, build, serve, licenses, commands"
                 );
                 return Err(1);
             }

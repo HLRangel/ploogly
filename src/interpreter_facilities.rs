@@ -157,6 +157,14 @@ pub fn get_inner(
     Ok(origin[*last..(*current - 2)].to_vec())
 }
 
+pub fn get_inner_st(
+    origin: &[u8],
+    last: &mut usize,
+    current: &mut usize
+) -> Result<String, std::io::Error> {
+    Ok(String::from_utf8(get_inner(origin, last, current)?).unwrap())
+}
+
 pub fn single_quote_literal(
     origin: &[u8],
     last: &mut usize,

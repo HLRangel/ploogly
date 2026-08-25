@@ -85,7 +85,9 @@ pub fn use_macro(ctx: &mut CommandContext) -> Result<Vec<u8>, std::io::Error> {
 
 pub fn create_macro(ctx: &mut CommandContext) -> Result<(), std::io::Error> {
     let macro_name: String = get_worl_produce_st(ctx.origin, &mut ctx.current, &mut ctx.last, ctx.vars, ctx.anon_stack)?;
-    let macro_content: Vec<u8> = get_inner(ctx.origin, &mut ctx.last, &mut ctx.current)?;
+    let macro_args: Vec<String> = get_separated_arguments_st(ctx.origin, &mut ctx.last, &mut ctx.current, &mut ctx.vars, &mut ctx.anon_stack)?;
+    
+    let macro_content: String = get_inner_st(ctx.origin, &mut ctx.last, &mut ctx.current)?;
 
     ctx.vars.insert(format!("__macro+{macro_name}"), macro_content.clone());
     
