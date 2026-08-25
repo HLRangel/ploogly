@@ -1,0 +1,14 @@
+
+Variables can be defined in `project.ssg` or with `set`. Use `var` to retrieve a variable.
+
+## Bases
+
+Bases are JSON files stored in `plooglybases/` directory. They store structured data that can be iterated and manipulated with commands like `iter_base`, `sortbase_by_key`, `cutbase_extension`, etc.
+
+## Contributing
+
+Contributions are welcome. Please open an issue or submit a pull request.
+
+## License
+
+This project is licensed under the terms of the MIT license. See LICENSE file for details.

@@ -1,0 +1,17 @@
+
+Starts a local web server on `127.0.0.1:8080` (or specified port). While running, press `R` then Enter to rebuild the project.
+
+### Other commands
+
+- `ploogly licenses` – show third-party license information.
+
+## Project structure
+
+- `project.ssg` – main configuration file with variables.
+- `site/` – source files (templates, markdown, etc.).
+- `out/site/` – generated static site.
+
+## Template language
+
+Ploogly uses a custom template language embedded in files. Commands are enclosed in `{{ ... }}` (double curly braces). For example:
+
