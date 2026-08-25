@@ -89,7 +89,7 @@ pub fn create_macro(ctx: &mut CommandContext) -> Result<(), std::io::Error> {
     
     let macro_content: String = get_inner_st(ctx.origin, &mut ctx.last, &mut ctx.current)?;
 
-    ctx.vars.insert(format!("__macro+{macro_name}"), macro_content.clone());
+    ctx.vars.insert(format!("__macro+{macro_name}"), macro_content.clone().as_bytes().to_vec());
     
     Ok(())
 }

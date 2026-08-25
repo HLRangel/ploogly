@@ -97,7 +97,7 @@ fn main() -> Result<(), u8> {
             "licenses" => {
                 println!(
                     "Ploogly (c) 2025-2026 HLRangel and Contributors. All Rights Reserved.\n\
-                     This is a version of Ploogly for PRIVATE USE in testing.\n\
+                     This is a test release not intended for serious use.\n\
                     ---\n\n\
                     Ploogly uses the following third-party packages:\n\
                     markdown-rs Copyright (c) 2022 Titus Wormer <tituswormer@gmail.com>\n\
